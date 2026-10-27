@@ -1,9 +1,13 @@
 import path from 'node:path';
 import type { NextConfig } from 'next';
 
+// `standalone` exists for the Docker image (apps/web/Dockerfile). On Vercel the
+// platform builds and traces the app itself, so let it use its defaults.
+const onVercel = Boolean(process.env.VERCEL);
+
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  outputFileTracingRoot: path.join(__dirname, '../..'),
+  output: onVercel ? undefined : 'standalone',
+  outputFileTracingRoot: onVercel ? undefined : path.join(__dirname, '../..'),
   transpilePackages: ['@osh/contracts'],
   reactStrictMode: true,
   poweredByHeader: false,

@@ -14,6 +14,7 @@
     "test:integration": "bash ../../scripts/test-api-integration.sh",
     "guardrail:eval": "ts-node src/modules/ai/guardrail.eval.ts",
     "seed": "ts-node prisma/seed.ts",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },

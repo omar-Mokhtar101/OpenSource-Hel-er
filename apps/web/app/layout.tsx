@@ -6,12 +6,12 @@ import './globals.css';
 import { QueryProvider } from '@/components/query-provider';
 import { SupabaseConfigProvider } from '@/components/supabase-provider';
 import { ThemeProvider } from '@/components/theme-provider';
-import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/site';
+import { SITE_DESCRIPTION, SITE_NAME, appUrl } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(appUrl()),
 };
 
 export const dynamic = 'force-dynamic';

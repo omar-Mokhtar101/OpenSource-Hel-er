@@ -497,17 +497,17 @@ Continue enabled only when level + 1 language. Inline message on the disabled bu
 | Field | Control | Rules |
 |---|---|---|
 | Bio / description | Textarea, 4 rows, counter `0/280` | Optional. Placeholder: "What are you learning right now?" |
-| CV | Dropzone 100% × 140px, dashed 1px border | PDF/DOCX, ≤5MB. Optional. |
+| CV | Dropzone 100% × 140px, dashed 1px border | PDF/DOCX, ≤4MB. Optional. |
 
 **CV states**
 
 | State | UI |
 |---|---|
-| Idle | Upload icon, `Drop your CV or browse`, `PDF or DOCX · up to 5 MB` |
+| Idle | Upload icon, `Drop your CV or browse`, `PDF or DOCX · up to 4 MB` |
 | Uploading | Progress bar (determinate) + `Uploading… 42%` + `Cancel` |
 | Processing | Indeterminate bar + `Reading your CV… this takes ~20 seconds` + a `Continue in background` link |
 | Done | Green check + `12 skills found` + chips (editable) + `Replace file` |
-| Error (type/size) | Red inline: `That file is 8 MB. The limit is 5 MB.` + `Choose another` |
+| Error (type/size) | Red inline: `That file is 8 MB. The limit is 4 MB.` + `Choose another` |
 | Error (extraction) | Amber: `We couldn't read that PDF. You can add skills manually.` + `Retry` |
 
 `Skip for now` is always available and moves to step 3. Skipping never blocks recommendations

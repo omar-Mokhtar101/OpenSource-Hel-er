@@ -7,6 +7,7 @@ import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Avatar, Pill } from '@/components/ui/card';
 import { publicApi, ServerApiError } from '@/lib/server-api';
+import { appUrl } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +70,7 @@ export default async function PublicProfilePage({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <CopyLinkButton url={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/u/${profile.handle}`} />
+              <CopyLinkButton url={`${appUrl()}/u/${profile.handle}`} />
               {profile.githubLogin ? (
                 <a
                   href={`https://github.com/${profile.githubLogin}`}

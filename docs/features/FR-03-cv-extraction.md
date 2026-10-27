@@ -5,7 +5,7 @@
 
 ## 1. What it does (user view)
 
-A developer uploads a PDF or DOCX (≤5 MB), sees processing status, then reviews extracted skills, technologies and level and applies them to the profile.
+A developer uploads a PDF or DOCX (≤4 MB), sees processing status, then reviews extracted skills, technologies and level and applies them to the profile.
 
 ## 2. Why it exists (FR + acceptance criteria)
 

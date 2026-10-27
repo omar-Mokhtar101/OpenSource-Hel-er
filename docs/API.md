@@ -19,7 +19,7 @@ checklist in `Sprints/sprintN/01-api.md`.
 | Pagination | `page` (1-based) and `perPage` (max 100) for notifications; discovery uses GitHub page/per_page internally. |
 | Rate limits | 180 requests/min/IP default; AI is capped per user/month and platform USD; outreach is 5/day; auth is Supabase-managed. |
 | Date/time | ISO 8601 UTC strings. |
-| File uploads | PDF or DOCX, ≤5 MB, magic-byte checked, private `cvs` bucket, signed/owner-only download. |
+| File uploads | PDF or DOCX, ≤4 MB, magic-byte checked, private `cvs` bucket, signed/owner-only download. |
 | Request ID | `x-request-id` echoed; logs contain userId/requestId, never tokens. |
 | CORS | None. The browser only calls the web origin. |
 | Health | `GET /health` liveness; `GET /health/ready` database readiness and a Redis check in the body. |

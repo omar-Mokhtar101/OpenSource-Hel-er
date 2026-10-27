@@ -71,3 +71,17 @@ One line per slice: what it does, why this way, what would break it.
   closest to the tool developers already use, and light stays one click away;
   what breaks it: changing `defaultTheme` without updating `lib/theme.test.ts`,
   or a theme whose tokens drift from `app/globals.css`.
+- **Vercel runs the app as two services and a daemon:** `vercel.json` puts
+  `apps/web` and `apps/api` under `services`, exposes only `web`, and gives
+  `web` a service binding that injects `API_URL`; the BullMQ consumer runs as a
+  daemon built from the root `Dockerfile.worker`; why: `/api/*` must stay on the
+  Next BFF because that is where the Supabase access token is attached, and a
+  queue consumer cannot live inside a request/response function; what breaks it:
+  routing `/api` straight to the API (every call becomes 401), setting `API_URL`
+  by hand on Vercel (it overrides the binding), or moving the daemon Dockerfile
+  into `apps/worker` where the build context loses the workspace.
+- **CV upload cap is 4 MB, not 5:** Vercel Functions reject bodies over 4.5 MB
+  and the browser upload passes through the web function before the API; why:
+  a bigger file would fail at the platform with an opaque 413 before our own
+  validation; what breaks it: raising `CV_MAX_BYTES` above 4 MB without moving
+  uploads to direct-to-Supabase signed URLs.

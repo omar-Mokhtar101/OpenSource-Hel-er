@@ -57,6 +57,21 @@ pnpm check:secrets                 # before every push
 Integration tests use a local `osh_test` database, never Supabase. The scoped script applies the migration first:
 `pnpm --filter @osh/api test:integration -- --runInBand`.
 
+## Deploy on Vercel
+
+The repo ships a `vercel.json` with two services (`web` public, `api` internal)
+and one daemon (`worker`). The web BFF reaches the API over a service binding, so
+`/api/*` stays on Next.js. External pieces you must provide: Supabase (database,
+auth, storage) and a Redis with TCP (Upstash free tier).
+
+Full setup, environment matrix and limits:
+[`docs/engineering/deployment-vercel.md`](docs/engineering/deployment-vercel.md).
+
+```bash
+vercel dev             # web + api locally, bindings injected (no daemon)
+docker compose up -d   # full stack including the worker
+```
+
 ## Repository map
 
 ```text

@@ -42,8 +42,8 @@ describe('contracts', () => {
     ).toThrow();
   });
 
-  it('documents the CV limit as 5 MB', () => {
-    expect(CV_MAX_BYTES).toBe(5 * 1024 * 1024);
+  it('documents the CV limit as 4 MB', () => {
+    expect(CV_MAX_BYTES).toBe(4 * 1024 * 1024);
   });
 });
 

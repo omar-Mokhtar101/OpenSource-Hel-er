@@ -123,7 +123,11 @@ export const CV_ALLOWED_MIME = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ] as const;
-export const CV_MAX_BYTES = 5 * 1024 * 1024;
+// Vercel Functions reject request bodies larger than 4.5 MB, and the browser
+// upload goes through the Next BFF (a function) before it reaches the API. A
+// 4 MB cap keeps multipart overhead inside that limit; a larger file would fail
+// at the platform with an opaque 413 before our validation ever runs.
+export const CV_MAX_BYTES = 4 * 1024 * 1024;
 export const CV_ALLOWED_EXTENSIONS = ['pdf', 'docx'] as const;
 
 /* -------------------------------------------------------------------------- */

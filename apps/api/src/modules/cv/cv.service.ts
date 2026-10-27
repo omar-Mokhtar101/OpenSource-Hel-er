@@ -14,6 +14,8 @@ import { isAiLimitError } from '../ai/limits';
 import { parseJsonObject } from '../ai/json';
 import { parseCvText } from './cv.parser';
 
+const CV_LIMIT_MB = Math.round(CV_MAX_BYTES / (1024 * 1024));
+
 @Injectable()
 export class CvService {
   private readonly logger = new Logger(CvService.name);
@@ -32,7 +34,7 @@ export class CvService {
       throw new AppError('EMPTY_FILE', 'Choose a CV file', 400);
     }
     if (file.size > CV_MAX_BYTES) {
-      throw new AppError('FILE_TOO_LARGE', 'The CV must be 5 MB or smaller', 413);
+      throw new AppError('FILE_TOO_LARGE', `The CV must be ${CV_LIMIT_MB} MB or smaller`, 413);
     }
     const extension = file.originalname.split('.').pop()?.toLowerCase() ?? '';
     const mime =

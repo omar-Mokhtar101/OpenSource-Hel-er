@@ -12,6 +12,8 @@ import { Pill } from '@/components/ui/card';
 import { apiFetch, apiUpload, errorMessage } from '@/lib/api-client';
 import { LEVEL_LABEL } from '@/lib/constants';
 
+const CV_LIMIT_MB = Math.round(CV_MAX_BYTES / (1024 * 1024));
+
 export function CvUpload({
   onApply,
 }: {
@@ -57,7 +59,7 @@ export function CvUpload({
     if (!selected) return;
     setError(null);
     if (selected.size > CV_MAX_BYTES) {
-      setError(`That file is ${(selected.size / 1024 / 1024).toFixed(1)} MB. The limit is 5 MB.`);
+      setError(`That file is ${(selected.size / 1024 / 1024).toFixed(1)} MB. The limit is ${CV_LIMIT_MB} MB.`);
       return;
     }
     if (!/\.(pdf|docx)$/i.test(selected.name)) {
@@ -173,7 +175,7 @@ export function CvUpload({
           <div className="flex flex-col items-center gap-2">
             <FileUp size={22} className="text-fg-subtle" />
             <p className="text-[13px] font-medium text-fg">Drop your CV or browse</p>
-            <p className="text-[11px] text-fg-subtle">PDF or DOCX · up to 5 MB</p>
+            <p className="text-[11px] text-fg-subtle">PDF or DOCX · up to {CV_LIMIT_MB} MB</p>
             <Button
               type="button"
               size="sm"

@@ -2,7 +2,7 @@ import { CV_MAX_BYTES } from '@osh/contracts';
 import { CvService } from './cv.service';
 
 describe('CvService limits', () => {
-  it('rejects a file over 5 MB before touching storage', async () => {
+  it('rejects a file over the size limit before touching storage', async () => {
     const service = new CvService(
       {} as never,
       {} as never,

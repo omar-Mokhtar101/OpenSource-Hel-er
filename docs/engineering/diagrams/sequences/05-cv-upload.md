@@ -15,7 +15,7 @@ sequenceDiagram
 
   D->>W: drop cv.pdf
   W->>A: POST /cv multipart (Bearer)
-  A->>A: validate extension, MIME, magic bytes, ≤5 MB
+  A->>A: validate extension, MIME, magic bytes, ≤4 MB
   A->>ST: upload cvs/<userId>/<uuid>.pdf
   A->>DB: CvFile PENDING; remove previous row/object
   A->>Q: enqueue cv.extract key cv:<fileId>

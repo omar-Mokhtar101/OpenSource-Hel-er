@@ -12,6 +12,9 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages/contracts/package.json packages/contracts/tsconfig.json packages/contracts/
 COPY packages/contracts/src packages/contracts/src
 COPY apps/api/package.json apps/api/
+# apps/api has a postinstall script (prisma generate), so the schema must exist
+# before install runs.
+COPY apps/api/prisma apps/api/prisma
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
