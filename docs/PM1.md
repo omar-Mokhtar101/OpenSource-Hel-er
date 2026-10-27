@@ -26,7 +26,7 @@ Maps every PM1 requirement to a real artifact. A row without a link is not done.
 | Images pushed to GHCR | `.github/workflows/docker.yml`, `sha` + `latest` on main | done |
 | GitHub Actions pipeline with a passing build | `.github/workflows/ci.yml` (lint-typecheck, contracts, tests, integration, docker matrix) | done |
 | Cache pnpm | `actions/setup-node` + pnpm cache in both workflows | done |
-| Pass-on-main evidence | PR #2: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/pull/2 — CI run link to paste after push | pending push |
+| Pass-on-main evidence | CI green on PR #2: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/actions/runs/40461265525 · guardrail: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/actions/runs/40461265486 | PR open; GHCR after merge |
 
 ## Part C — Project management
 

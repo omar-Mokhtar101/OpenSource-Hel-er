@@ -112,4 +112,5 @@ The order to build in. Tick a slice only when its "done when" is true. Keep this
 - Integration: `pnpm --filter @osh/api test:integration -- --runInBand` → 13/13
 - Live smoke: `pnpm smoke` and the Bruno smoke collection (8/8)
 - Compose: `docker compose ps` shows api, web, worker healthy; postgres/redis healthy
+- CI: all 7 jobs green on PR #2 (run 40461265525); guardrail eval green (run 40461265486)
 - PR/review: see `dev/STATE.md` and `dev/build-log.md`
