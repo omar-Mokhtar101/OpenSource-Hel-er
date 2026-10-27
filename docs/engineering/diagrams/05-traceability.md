@@ -19,7 +19,7 @@ Every diagram element maps to a real artifact. Jira keys come from
 | ILLM | `apps/api/src/modules/ai/gemini.service.ts` | FR-3, FR-5, FR-9–FR-11 |
 | web | `apps/web/Dockerfile`, `app/api/[...path]/route.ts` | NFR-3, NFR-1 |
 | api | `apps/api/Dockerfile`, `src/main.ts` | NFR-1, NFR-3 |
-| worker | `src/worker.ts`, `src/jobs/worker-runner.ts` | NFR-5, FR-3/7/8/13/16 |
+| worker | `apps/worker/Dockerfile`, `src/worker.ts`, `src/jobs/worker-runner.ts` | NFR-5, FR-3/7/8/13/16 |
 | Redis | `src/infra/redis.service.ts`, `queue.service.ts`, `04-redis-keys.md` | NFR-1, FR-4/5/13 |
 | Postgres | `prisma/schema.prisma`, `04-erd.md` | all FRs |
 | migrate | `apps/api/prisma/migrations/20261026232106_init`, compose `migrate` | NFR-2.2 |

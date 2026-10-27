@@ -11,7 +11,7 @@ the solution.
 
 pnpm workspace · Next.js 15 (App Router, Tailwind, TanStack Query, Zod) ·
 NestJS 11 · Prisma + PostgreSQL · Redis + BullMQ · Supabase Auth/Storage ·
-Gemini · Octokit. One API image also runs the worker.
+Gemini · Octokit. Separate `web`, `api` and `worker` images.
 
 ## Quick start
 
@@ -62,7 +62,7 @@ Integration tests use a local `osh_test` database, never Supabase. The scoped sc
 ```text
 apps/web          Next.js UI and same-origin BFF proxy
 apps/api          NestJS API, Prisma schema, BullMQ processors
-apps/api/src/worker.ts  worker bootstrap (same image)
+apps/api/src/worker.ts  worker bootstrap (apps/worker/Dockerfile)
 packages/contracts  Zod request/response schemas (source of API truth)
 supabase/         RLS policies and SQL migrations not owned by Prisma
 docs/             requirements, sprint contracts, design, ADRs, features, PM1

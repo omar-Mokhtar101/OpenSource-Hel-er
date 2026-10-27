@@ -19,14 +19,14 @@ Maps every PM1 requirement to a real artifact. A row without a link is not done.
 
 | PM1 item | Artifact | Status |
 |---|---|---|
-| Multi-stage Dockerfile per service | `apps/api/Dockerfile`, `apps/web/Dockerfile` | done |
+| Multi-stage Dockerfile per service | `apps/web/Dockerfile`, `apps/api/Dockerfile`, `apps/worker/Dockerfile` | done |
 | Whole system with one `docker compose up` | `docker-compose.yml` (web, api, worker, redis, postgres, migrate) | done |
 | Health check per service | compose `healthcheck` for postgres, redis, api, worker, web | done |
 | No secret baked into an image | `.dockerignore` excludes `.env*`; build stage removes local symlinks | done |
-| Images pushed to GHCR | `.github/workflows/docker.yml`, `sha` + `latest` on main | done |
+| Images pushed to GHCR | `.github/workflows/docker.yml` publishes `web`, `api`, `worker`; `sha` + `latest` on main | done |
 | GitHub Actions pipeline with a passing build | `.github/workflows/ci.yml` (lint-typecheck, contracts, tests, integration, docker matrix) | done |
 | Cache pnpm | `actions/setup-node` + pnpm cache in both workflows | done |
-| Pass-on-main evidence | CI green on PR #2: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/actions/runs/40461265525 · guardrail: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/actions/runs/40461265486 | PR open; GHCR after merge |
+| Pass-on-main evidence | CI: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/actions/runs/40461606380 · docker: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/actions/runs/40461606379 · guardrail: https://github.com/omar-Mokhtar101/OpenSource-Hel-er/actions/runs/40461606344 | green on `main` |
 
 ## Part C — Project management
 
@@ -47,8 +47,8 @@ Maps every PM1 requirement to a real artifact. A row without a link is not done.
 
 ## Submission checklist
 
-- [ ] Push `main`; wait for `ci` and `docker` jobs; paste the run URL in this file.
-- [ ] Confirm both GHCR packages: `web` and `api`.
+- [x] Push `main`; wait for `ci` and `docker` jobs; paste the run URL in this file.
+- [x] Confirm the GHCR packages: `web`, `api`, `worker`.
 - [ ] Create the Jira project, import the CSV, capture the board + one burndown.
 - [ ] Fill the demo rehearsal dates in `docs/DEMO.md`.
 - [ ] Submit every team member separately (course rule).

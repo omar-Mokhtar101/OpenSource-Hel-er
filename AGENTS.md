@@ -34,7 +34,7 @@ Decision record: `docs/engineering/decisions/0001-nest-next.md`.
 ```
 apps/web              Next.js UI + BFF proxy (app/api/[...path]/route.ts)
 apps/api              NestJS API, Prisma schema, BullMQ processors
-apps/api/src/worker.ts  worker bootstrap (same image, different command)
+apps/api/src/worker.ts  worker bootstrap (apps/worker/Dockerfile)
 packages/contracts    Zod schemas + shared types (single source of API truth)
 supabase/             RLS policies and SQL migrations not owned by Prisma
 docs/                 requirements, sprints, engineering

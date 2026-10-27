@@ -38,3 +38,8 @@ One line per slice: what it does, why this way, what would break it.
   one command and a reviewer must follow the mapping without asking; what breaks
   it: a diagram that is not backed by a file, a secret in a tracked file, or a
   demo that depends on a paused free project.
+- **Release — one image per service:** `web`, `api` and `worker` each build from
+  their own multi-stage `apps/<service>/Dockerfile`; why: PM1 asks for a
+  Dockerfile per service, and separate images keep the entrypoint explicit;
+  what breaks it: drifting build stages between `apps/api` and `apps/worker`
+  (keep them in sync) or a worker image that exposes an HTTP healthcheck.

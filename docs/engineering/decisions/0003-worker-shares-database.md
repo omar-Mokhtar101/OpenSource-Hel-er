@@ -13,9 +13,10 @@ data" could put the worker on a second database or behind an API.
 ## Decision
 
 The API and worker are **two processes of the same service**. They share one
-Postgres schema and one Prisma client, and they are built from the same image.
-The API enqueues jobs; the worker consumes them and writes the resulting rows.
-No service reads another service's database.
+Postgres schema and one Prisma client. Each has its own image
+(`apps/api/Dockerfile`, `apps/worker/Dockerfile`) built from the same source
+tree; only the entrypoint differs. The API enqueues jobs; the worker consumes
+them and writes the resulting rows. No service reads another service's database.
 
 The health model reflects this: the worker checks the API readiness endpoint and
 the shared database, not a second store.

@@ -91,7 +91,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: apps/worker/Dockerfile
     command: ["node", "apps/api/dist/worker.js"]
     env_file: .env
     environment:

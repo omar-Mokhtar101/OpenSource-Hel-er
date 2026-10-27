@@ -102,7 +102,7 @@ No request path may depend on an AI call succeeding.
 
 ## 9. Deployment
 
-- One image per app (`web`, `api`), same `api` image for `worker`.
+- One multi-stage Dockerfile per service (`apps/web`, `apps/api`, `apps/worker`), published as three GHCR packages.
 - Published to GHCR by `.github/workflows/docker.yml`, tagged `sha` always and `latest` on `main`.
 - `docker compose up --build` runs the whole system locally against managed Supabase.
 - Migrations run as a release step (`prisma migrate deploy`), never on app boot.

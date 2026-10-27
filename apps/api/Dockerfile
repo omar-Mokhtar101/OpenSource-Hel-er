@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build context is the monorepo root.
-# The same image runs the API and the worker (different command).
+# API image. The worker has its own image: apps/worker/Dockerfile.
 
 FROM node:22-alpine AS base
 RUN corepack enable

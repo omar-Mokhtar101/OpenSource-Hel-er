@@ -15,8 +15,8 @@ The order to build in. Tick a slice only when its "done when" is true. Keep this
 - [x] pnpm workspace: `apps/web`, `apps/api`, `packages/contracts`
 - [x] `apps/api` Nest app with `/health`, global validation pipe, error filter
 - [x] `apps/web` Next app with layout, theme tokens, one animated page
-- [x] `Dockerfile` per app, `docker-compose.yml` with `web`, `api`, `worker`, `redis`
-- [x] `ci.yml` green, `docker.yml` pushes both images to GHCR
+- [x] `Dockerfile` per service, `docker-compose.yml` with `web`, `api`, `worker`, `redis`
+- [x] `ci.yml` green, `docker.yml` pushes three images (`web`, `api`, `worker`) to GHCR
 
 **Done when:** `docker compose up --build` serves the web app, `/health` returns ok, and a push to `main` publishes two GHCR tags.
 

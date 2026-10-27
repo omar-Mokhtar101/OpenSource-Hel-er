@@ -1,8 +1,8 @@
 # 01 — Containers (PM1 level 1)
 
 One container per deployable unit. Web serves the browser and proxies to the
-API; the API and worker share the API image and the same database because they
-are one service with two processes (ADR 0003).
+API; the worker consumes BullMQ jobs and shares the API's database (ADR 0003).
+Each container has its own multi-stage Dockerfile in `apps/<name>/Dockerfile`.
 
 ```mermaid
 flowchart TB
