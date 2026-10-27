@@ -59,3 +59,15 @@ One line per slice: what it does, why this way, what would break it.
   Dockerfile per service, and separate images keep the entrypoint explicit;
   what breaks it: drifting build stages between `apps/api` and `apps/worker`
   (keep them in sync) or a worker image that exposes an HTTP healthcheck.
+- **OAuth detection reads runtime config, not build-time env:** the GitHub button
+  asks Supabase `/auth/v1/settings` using the URL and key that
+  `SupabaseConfigProvider` receives from the server layout; why: `NEXT_PUBLIC_*`
+  is inlined at build time and the Docker image builds without it, so
+  `process.env` was undefined and the button was hidden even with the provider
+  enabled; what breaks it: reading `process.env.NEXT_PUBLIC_*` inside a client
+  component again, or dropping the provider props from `app/layout.tsx`.
+- **GitHub Dark is the default palette:** `lib/theme.ts` holds `DEFAULT_THEME` and
+  the toggle cycle (github → dark → light → github); why: the product looks
+  closest to the tool developers already use, and light stays one click away;
+  what breaks it: changing `defaultTheme` without updating `lib/theme.test.ts`,
+  or a theme whose tokens drift from `app/globals.css`.

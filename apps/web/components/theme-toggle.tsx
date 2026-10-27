@@ -3,6 +3,7 @@
 import { Github, Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
+import { nextTheme, resolveThemeName } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
 const OPTIONS = [
@@ -19,8 +20,8 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   if (!mounted) return <span className={compact ? 'h-8 w-8' : 'h-8 w-[118px]'} aria-hidden />;
 
   if (compact) {
-    const current = theme === 'github' ? 'github' : resolvedTheme === 'dark' ? 'dark' : 'light';
-    const next = current === 'light' ? 'dark' : current === 'dark' ? 'github' : 'light';
+    const current = resolveThemeName(theme, resolvedTheme);
+    const next = nextTheme(current);
     const Icon = current === 'github' ? Github : current === 'dark' ? Moon : Sun;
     return (
       <button

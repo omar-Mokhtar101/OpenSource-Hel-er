@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useSupabase } from '@/components/supabase-provider';
 import { errorMessage } from '@/lib/api-client';
-import { friendlyOAuthError, useGitHubOAuthEnabled } from '@/lib/use-oauth';
+import { friendlyOAuthError } from '@/lib/oauth';
+import { useGitHubOAuthEnabled } from '@/lib/use-oauth';
 
 export function SignInPopover({ signedIn = false }: { signedIn?: boolean }) {
   const supabase = useSupabase();

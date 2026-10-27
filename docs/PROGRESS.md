@@ -108,7 +108,7 @@ The order to build in. Tick a slice only when its "done when" is true. Keep this
 - [x] Progress board drag-and-drop across In Progress, PR Open, Merged and Paused; every move writes an event and an in-app notification; Merged is terminal.
 - [x] Profile/onboarding forms hydrate once, so the first language or skill click is no longer overwritten; any typed skill is saved and scored.
 - [x] Guide tab uses the full width; offline answers show the request id, a retry and the log command.
-- [x] GitHub Dark theme; GitHub sign-in hidden with a clear notice when the provider is disabled.
+- [x] GitHub Dark is the default palette (light, dark and system stay one click away); GitHub sign-in hidden with a clear notice when the provider is disabled.
 - [x] Onboarding “Find my first issue” auto-runs the first search and explains what is happening.
 
 State machine: [`engineering/diagrams/06-progress-state.md`](engineering/diagrams/06-progress-state.md).

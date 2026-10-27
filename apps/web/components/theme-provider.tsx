@@ -2,15 +2,13 @@
 
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import type { ReactNode } from 'react';
-
-export const THEMES = ['light', 'dark', 'github'] as const;
-export type ThemeName = (typeof THEMES)[number];
+import { DEFAULT_THEME, THEMES } from '@/lib/theme';
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme={DEFAULT_THEME}
       enableSystem
       themes={[...THEMES]}
       disableTransitionOnChange

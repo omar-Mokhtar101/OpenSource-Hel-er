@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { FieldError, Helper, Input, Label } from '@/components/ui/input';
 import { useSupabase } from '@/components/supabase-provider';
 import { errorMessage } from '@/lib/api-client';
-import { friendlyOAuthError, useGitHubOAuthEnabled } from '@/lib/use-oauth';
+import { friendlyOAuthError } from '@/lib/oauth';
+import { useGitHubOAuthEnabled } from '@/lib/use-oauth';
 
 type Mode = 'login' | 'signup';
 

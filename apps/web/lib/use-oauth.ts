@@ -1,30 +1,35 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+import { useSupabaseConfig } from '@/components/supabase-provider';
+import { githubEnabledFromSettings } from '@/lib/oauth';
 
 /**
  * Supabase reports which OAuth providers are enabled on the project.
- * `null` means "unknown yet" — render the button and let the provider answer.
+ * `null` means "not known yet" — the caller keeps the button disabled.
+ *
+ * The URL and key come from `SupabaseConfigProvider`, which receives them from
+ * the server layout at runtime. Reading `process.env.NEXT_PUBLIC_*` here would
+ * be undefined in the Docker standalone build, because those values are inlined
+ * only at build time and the image does not bake them.
  */
 export function useGitHubOAuthEnabled(): boolean | null {
+  const config = useSupabaseConfig();
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const url = config?.url;
+  const key = config?.anonKey;
 
   useEffect(() => {
-    if (!URL || !KEY) {
-      setEnabled(false);
-      return;
-    }
+    if (!url || !key) return;
     let alive = true;
-    fetch(`${URL.replace(/\/$/, '')}/auth/v1/settings`, {
-      headers: { apikey: KEY },
+    fetch(`${url.replace(/\/$/, '')}/auth/v1/settings`, {
+      headers: { apikey: key },
       cache: 'no-store',
     })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((settings: { external?: Record<string, boolean> } | null) => {
-        if (alive) setEnabled(Boolean(settings?.external?.github));
+      .then(async (response) => (response.ok ? response.json() : null))
+      .then((settings: unknown) => {
+        if (!alive) return;
+        setEnabled(settings ? githubEnabledFromSettings(settings) : null);
       })
       .catch(() => {
         if (alive) setEnabled(null);
@@ -32,17 +37,7 @@ export function useGitHubOAuthEnabled(): boolean | null {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [url, key]);
 
   return enabled;
-}
-
-export function friendlyOAuthError(message: string): string {
-  if (/provider is not enabled|unsupported provider/i.test(message)) {
-    return 'GitHub sign-in is not enabled on this Supabase project yet. Use email and password below, or ask the project owner to enable the GitHub provider.';
-  }
-  if (/redirect_uri|redirect url/i.test(message)) {
-    return 'GitHub sign-in is misconfigured: add /auth/callback to the Supabase redirect allow-list.';
-  }
-  return message;
 }

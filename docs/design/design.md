@@ -84,9 +84,12 @@ oversized tight headline, two controls, product window floating below. We take t
 We use GitHub's **semantic palette structure** (canvas / border / fg / accent / status), because
 developers already read those colours correctly. We do **not** use GitHub's logo or brand assets.
 
-Two themes, one set of semantic names. Components never reference a raw hex — only a token.
+Three palettes, one set of semantic names. Components never reference a raw hex — only a token.
+The default is **GitHub Dark** (`.github`): canvas `#010409`, subtle `#0D1117`, inset `#000000`,
+borders `#21262D`, accent `#4493F8`. The `.dark` palette below is the softer original dark; light
+is opt-in. Tokens live in `app/globals.css`; the default and the toggle order live in `lib/theme.ts`.
 
-### 5.2 Dark theme (default)
+### 5.2 Dark theme (soft)
 
 | Token | Hex | Use |
 |---|---|---|
@@ -966,7 +969,7 @@ apps/web/
     api/[...path]/route.ts     BFF proxy
   components/ui/               shadcn primitives
   components/<feature>/        colocated component + hook + types
-  lib/theme.tsx                next-themes, cookie
+  lib/theme.ts                 default palette, system resolution, toggle cycle
   lib/api.ts                   typed client from packages/contracts
   styles/globals.css           CSS variables for both themes
 ```
