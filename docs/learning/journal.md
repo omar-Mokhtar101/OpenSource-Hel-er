@@ -38,6 +38,22 @@ One line per slice: what it does, why this way, what would break it.
   one command and a reviewer must follow the mapping without asking; what breaks
   it: a diagram that is not backed by a file, a secret in a tracked file, or a
   demo that depends on a paused free project.
+- **UX pass — context before AI:** every issue page loads a deterministic
+  context (issue text, comments, README, CONTRIBUTING, clone/branch/test
+  commands) before the AI onboarding; why: a beginner must understand the
+  repository without waiting for a model, and the guide should explain, not
+  replace, the source; what breaks it: a GitHub 503 with no fallback link, a
+  command list that ignores the lockfile, or AI text presented as the source of
+  truth.
+- **Progress board:** cards move between In Progress, PR Open, Merged and Paused
+  by drag or dialog; every transition writes an event, an in-app notification
+  and a badge job, and Merged is terminal; why: status must be legible at a
+  glance and auditable; what breaks it: allowing a merged card to move back, a
+  drop that writes no event, or a notification without a dedupe key.
+- **Profile form hydration:** state is seeded once during render, not in an
+  effect; why: the first click on a language raced the profile effect and was
+  overwritten; what breaks it: re-adding a `useEffect` that resets the form on
+  every `profile.data` change.
 - **Release — one image per service:** `web`, `api` and `worker` each build from
   their own multi-stage `apps/<service>/Dockerfile`; why: PM1 asks for a
   Dockerfile per service, and separate images keep the entrypoint explicit;

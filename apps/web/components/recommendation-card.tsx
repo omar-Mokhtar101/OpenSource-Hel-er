@@ -9,10 +9,12 @@ import { relativeTime, truncate } from '@/lib/utils';
 
 export function RecommendationCard({
   recommendation,
+  saved = false,
   onSave,
   onIgnore,
 }: {
   recommendation: Recommendation;
+  saved?: boolean;
   onSave: () => void;
   onIgnore: () => void;
 }) {
@@ -68,10 +70,12 @@ export function RecommendationCard({
           <button
             type="button"
             onClick={onSave}
-            className="inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[11px] text-fg-muted hover:bg-canvas hover:text-fg"
-            aria-label={`Save ${issue.title}`}
+            disabled={saved}
+            className="inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[11px] text-fg-muted hover:bg-canvas hover:text-fg disabled:cursor-default disabled:text-fg"
+            aria-label={saved ? `${issue.title} saved` : `Save ${issue.title}`}
+            aria-pressed={saved}
           >
-            <Bookmark size={13} /> Save
+            <Bookmark size={13} fill={saved ? 'currentColor' : 'none'} /> {saved ? 'Saved' : 'Save'}
           </button>
           <button
             type="button"

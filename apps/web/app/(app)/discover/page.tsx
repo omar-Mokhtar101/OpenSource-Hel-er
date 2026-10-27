@@ -32,6 +32,7 @@ export default function DiscoverPage() {
   const [org, setOrg] = useState('');
   const [repo, setRepo] = useState('');
   const [lastError, setLastError] = useState<unknown>(null);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const autoRan = useRef(false);
 
   const latest = useQuery({
@@ -62,7 +63,8 @@ export default function DiscoverPage() {
   const save = useMutation({
     mutationFn: (issueId: string) =>
       apiFetch<SavedItem>('/saved/items', { method: 'POST', body: { issueId } }),
-    onSuccess: () => {
+    onSuccess: (_item, issueId) => {
+      setSavedIds((current) => new Set(current).add(issueId));
       toast.success('Saved to “Later”');
       queryClient.invalidateQueries({ queryKey: ['saved-lists'] });
     },
@@ -278,6 +280,7 @@ export default function DiscoverPage() {
             <RecommendationCard
               key={recommendation.issue.id}
               recommendation={recommendation}
+              saved={savedIds.has(recommendation.issue.id)}
               onSave={() => save.mutate(recommendation.issue.id)}
               onIgnore={() => ignore.mutate(recommendation.issue.id)}
             />

@@ -117,6 +117,16 @@ Or `pnpm dev` for hot reload. `pnpm verify:env` proves the integrations;
   the demo path.
 - Gemini free tier can be slow or return 503; ranking/onboarding fall back to
   rules and label it, the guide shows an offline card.
+
+## 13. When something looks broken (5 min)
+
+| Symptom | Where to look |
+|---|---|
+| “GitHub sign-in is not enabled” | Supabase → Authentication → Providers → GitHub. The web reads `/auth/v1/settings` and hides the button until `external.github` is true (see `dev/SETUP/02-github-oauth.md`). |
+| “The guide is offline…” | The card shows a request id. Run `docker compose logs api | grep <requestId>` or `pnpm dev:api`; the API logs `guide unavailable for user … conversation …` with the provider error. Check `GEMINI_API_KEY` and the model name in `.env`. |
+| Guide answers but no cards | `docker compose logs worker`; ranking falls back to rules when Gemini fails and the UI labels it. |
+| Drag/drop does nothing | `PATCH /progress/:id` rejects a merged card moving backwards (`ALREADY_MERGED`); the toast shows the API error. |
+| Profile edit reverts | Save from the sticky bar; the form hydrates once and no longer overwrites the first click. |
 - The guide is non-streaming JSON. FR-11 does not require streaming; the visual
   streamed caret is deferred.
 - Email is best-effort; in-app notifications are the record.

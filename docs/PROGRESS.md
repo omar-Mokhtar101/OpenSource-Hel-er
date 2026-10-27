@@ -102,13 +102,24 @@ The order to build in. Tick a slice only when its "done when" is true. Keep this
 
 `docs/DEMO.md` — sign up → profile → three recommendations → select → onboarding → AI guide refusal → progress → merged → admin usage.
 
+## Post-release UX pass
+
+- [x] Deterministic issue + repository context before the AI: full issue text, comments, README, CONTRIBUTING, languages, file tree, clone/branch/install/test commands, repo/issue links (`GET /discovery/issues/:id/context`).
+- [x] Progress board drag-and-drop across In Progress, PR Open, Merged and Paused; every move writes an event and an in-app notification; Merged is terminal.
+- [x] Profile/onboarding forms hydrate once, so the first language or skill click is no longer overwritten; any typed skill is saved and scored.
+- [x] Guide tab uses the full width; offline answers show the request id, a retry and the log command.
+- [x] GitHub Dark theme; GitHub sign-in hidden with a clear notice when the provider is disabled.
+- [x] Onboarding “Find my first issue” auto-runs the first search and explains what is happening.
+
+State machine: [`engineering/diagrams/06-progress-state.md`](engineering/diagrams/06-progress-state.md).
+
 
 ## Evidence
 
 - Feature docs: `docs/features/README.md`
 - Architecture and diagrams: `docs/engineering/diagrams/`
 - API contracts: `docs/API.md` and each `docs/Sprints/sprintN/01-api.md`
-- Guardrail eval: `pnpm guardrail:eval` → 10/10
+- Guardrail eval: `pnpm guardrail:eval` → 15/15
 - Integration: `pnpm --filter @osh/api test:integration -- --runInBand` → 13/13
 - Live smoke: `pnpm smoke` and the Bruno smoke collection (8/8)
 - Compose: `docker compose ps` shows api, web, worker healthy; postgres/redis healthy
