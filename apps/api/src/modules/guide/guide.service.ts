@@ -119,8 +119,17 @@ export class GuideService {
       completionTokens = result.completionTokens;
       model = result.model;
     } catch (error) {
-      this.logger.warn(`guide unavailable: ${error instanceof Error ? error.message : 'unknown'}`);
-      throw new AppError('AI_UNAVAILABLE', 'The guide is offline right now. Your history is safe.', 503);
+      this.logger.warn(
+        `guide unavailable for user ${userId} conversation ${conversation.id}: ${
+          error instanceof Error ? error.message : 'unknown'
+        }`,
+      );
+      throw new AppError(
+        'AI_UNAVAILABLE',
+        'The guide is offline because the AI provider did not answer. Your history is safe — retry in a minute. If it keeps failing, check the API logs for this request id.',
+        503,
+        [{ message: 'Provider: Gemini. Logs: docker compose logs api | grep <requestId>' }],
+      );
     }
 
     await this.aiUsage.record({

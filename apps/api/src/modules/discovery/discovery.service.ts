@@ -298,7 +298,7 @@ export class DiscoveryService {
   }
 }
 
-function heuristicRank(
+export function heuristicRank(
   pool: IssueCandidate[],
   profile: { languages: string[]; skills: string[]; experienceLevel: string | null },
   requestedLanguage?: string,
@@ -308,6 +308,9 @@ function heuristicRank(
       .filter((language): language is string => Boolean(language))
       .map((language) => language.toLowerCase()),
   );
+  const skills = profile.skills
+    .map((skill) => skill.trim().toLowerCase())
+    .filter((skill) => skill.length >= 2);
   return [...pool].sort((a, b) => score(b) - score(a));
 
   function score(issue: IssueCandidate): number {
@@ -318,18 +321,26 @@ function heuristicRank(
     if (issue.labels.some((label) => /good first issue/i.test(label))) value += 20;
     value += Math.max(0, 30 - issue.activityDays);
     value += Math.min(15, Math.floor(issue.stars / 5000));
+    const text = [issue.title, issue.repoDescription ?? '', issue.language ?? '', ...issue.labels]
+      .join(' ')
+      .toLowerCase();
+    const matchedSkills = skills.filter((skill) => text.includes(skill));
+    value += Math.min(20, matchedSkills.length * 6);
     return value;
   }
 }
 
 function ruleReason(
   issue: IssueCandidate,
-  profile: { languages: string[]; experienceLevel: string | null },
+  profile: { languages: string[]; skills: string[]; experienceLevel: string | null },
   requestedLanguage?: string,
 ): string {
   const language = issue.language ?? requestedLanguage ?? profile.languages[0] ?? 'your stack';
   const level = issue.level ?? profile.experienceLevel ?? 'your level';
-  return `Matched on ${language} and ${level}. Recent activity ${issue.activityDays}d ago.`;
+  const text = [issue.title, issue.repoDescription ?? '', ...issue.labels].join(' ').toLowerCase();
+  const skill = profile.skills.find((entry) => entry.length >= 2 && text.includes(entry.toLowerCase()));
+  const skillNote = skill ? ` It also mentions ${skill}, one of your skills.` : '';
+  return `Matched on ${language} and ${level}. Recent activity ${issue.activityDays}d ago.${skillNote}`;
 }
 
 function mapRow(row: {

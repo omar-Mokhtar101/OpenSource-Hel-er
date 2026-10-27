@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button';
 import { FieldError, Helper, Input, Label } from '@/components/ui/input';
 import { useSupabase } from '@/components/supabase-provider';
 import { errorMessage } from '@/lib/api-client';
+import { friendlyOAuthError, useGitHubOAuthEnabled } from '@/lib/use-oauth';
 
 type Mode = 'login' | 'signup';
 
 export function AuthForm({ mode, next = '/discover' }: { mode: Mode; next?: string }) {
   const supabase = useSupabase();
   const router = useRouter();
+  const githubEnabled = useGitHubOAuthEnabled();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,7 +63,7 @@ export function AuthForm({ mode, next = '/discover' }: { mode: Mode; next?: stri
         redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
-    if (oauthError) setError(oauthError.message);
+    if (oauthError) setError(friendlyOAuthError(oauthError.message));
   }
 
   return (
@@ -77,11 +79,27 @@ export function AuthForm({ mode, next = '/discover' }: { mode: Mode; next?: stri
         </p>
       </div>
 
-      <Button type="button" variant="secondary" size="lg" className="w-full" onClick={github}>
-        <Github size={18} strokeWidth={1.75} />
-        Continue with GitHub
-      </Button>
-      <Helper>Skills filled from your repositories.</Helper>
+      {githubEnabled === false ? (
+        <div className="rounded-sm border border-attention/30 bg-attention/10 px-3 py-2.5 text-[12px] leading-5 text-attention">
+          GitHub sign-in is not enabled on this Supabase project yet. Use email and password below —
+          everything except automatic PR sync works without GitHub.
+        </div>
+      ) : (
+        <>
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            className="w-full"
+            onClick={github}
+            disabled={githubEnabled !== true}
+          >
+            <Github size={18} strokeWidth={1.75} />
+            {githubEnabled === null ? 'Checking GitHub…' : 'Continue with GitHub'}
+          </Button>
+          <Helper>Skills filled from your repositories.</Helper>
+        </>
+      )}
 
       <div className="my-5 flex items-center gap-3">
         <span className="h-px flex-1 bg-border" />

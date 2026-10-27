@@ -7,6 +7,7 @@ export class ApiError extends Error {
     public readonly code: string,
     message: string,
     public readonly details?: Array<{ field?: string; message: string }>,
+    public readonly requestId?: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -40,6 +41,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       parsedError.success ? parsedError.data.code : 'REQUEST_FAILED',
       parsedError.success ? parsedError.data.message : `Request failed (${response.status})`,
       parsedError.success ? parsedError.data.details : undefined,
+      parsedError.success ? parsedError.data.requestId : undefined,
     );
   }
   try {

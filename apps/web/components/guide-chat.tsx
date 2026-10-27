@@ -29,6 +29,8 @@ export function GuideChat({
   const [thinking, setThinking] = useState(false);
   const [limit, setLimit] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [lastAsked, setLastAsked] = useState<string | null>(null);
   const [usage, setUsage] = useState({ used: 0, max: 20_000 });
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -49,8 +51,10 @@ export function GuideChat({
     const trimmed = content.trim();
     if (!trimmed || thinking) return;
     setError(null);
+    setRequestId(null);
     setLimit(false);
     setDraft('');
+    setLastAsked(trimmed);
     const optimistic: ChatMessage = {
       id: `local-${Date.now()}`,
       role: 'USER',
@@ -72,6 +76,7 @@ export function GuideChat({
       if (caught instanceof ApiError && (caught.status === 429 || caught.code.startsWith('AI_'))) {
         setLimit(caught.status === 429);
       }
+      if (caught instanceof ApiError) setRequestId(caught.requestId ?? null);
       setError(errorMessage(caught));
       setMessages((current) => current.filter((message) => message.id !== optimistic.id));
     } finally {
@@ -113,7 +118,7 @@ export function GuideChat({
           {messages.map((message) =>
             message.role === 'USER' ? (
               <div key={message.id} className="flex justify-end">
-                <div className="max-w-[80%] rounded-md border border-border bg-canvas-subtle px-4 py-3 text-[13px] leading-6 text-fg">
+                <div className="max-w-[78ch] rounded-md border border-border bg-canvas-subtle px-4 py-3 text-[13px] leading-6 text-fg">
                   {message.content}
                 </div>
               </div>
@@ -166,7 +171,28 @@ export function GuideChat({
             You&apos;ve reached this month&apos;s AI limit. It resets on the 1st.
           </div>
         ) : null}
-        {error && !limit ? <p className="mt-3 text-[12px] text-danger">{error}</p> : null}
+        {error && !limit ? (
+          <div className="mt-3 rounded-md border border-danger/30 bg-danger/10 px-3 py-2.5 text-[12px] text-danger">
+            <p>{error}</p>
+            {requestId ? (
+              <p className="mt-1 font-mono text-[10px] text-danger/80">Request {requestId}</p>
+            ) : null}
+            <div className="mt-2 flex items-center gap-3">
+              {lastAsked ? (
+                <button
+                  type="button"
+                  onClick={() => void send(lastAsked)}
+                  className="text-[11px] font-medium underline"
+                >
+                  Retry
+                </button>
+              ) : null}
+              <span className="text-[10px] text-danger/80">
+                Logs: docker compose logs api
+              </span>
+            </div>
+          </div>
+        ) : null}
 
         <form
           className="mt-4"

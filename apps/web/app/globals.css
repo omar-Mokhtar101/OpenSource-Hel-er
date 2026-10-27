@@ -44,6 +44,28 @@
   --done: #a371f7;
 }
 
+/* GitHub Dark — pure black canvas, higher contrast than the default dark. */
+.github {
+  color-scheme: dark;
+  --canvas-default: #010409;
+  --canvas-subtle: #0d1117;
+  --canvas-inset: #000000;
+  --canvas-overlay: rgba(0, 0, 0, 0.8);
+  --border-default: #21262d;
+  --border-muted: #161b22;
+  --border-strong: #30363d;
+  --fg-default: #f0f6fc;
+  --fg-muted: #9198a1;
+  --fg-subtle: #6e7681;
+  --accent: #4493f8;
+  --accent-hover: #58a6ff;
+  --accent-subtle: rgba(56, 139, 253, 0.18);
+  --success: #3fb950;
+  --attention: #d29922;
+  --danger: #f85149;
+  --done: #ab7df8;
+}
+
 * {
   border-color: var(--border-default);
 }

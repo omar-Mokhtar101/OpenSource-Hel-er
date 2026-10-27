@@ -4,6 +4,7 @@ import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { EmptyState, Pill } from '@/components/ui/card';
 import { publicApi } from '@/lib/server-api';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { LearningSearchResponseSchema, type LearningSearchResponse } from '@osh/contracts';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,16 @@ export default async function LearnPage({
 }) {
   const params = await searchParams;
   const query = params.q?.trim();
+  let signedIn = false;
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    signedIn = Boolean(user);
+  } catch {
+    signedIn = false;
+  }
   const data = await publicApi<LearningSearchResponse>(
     query
       ? `/learning?q=${encodeURIComponent(query)}`
@@ -29,8 +40,11 @@ export default async function LearnPage({
       <header className="mx-auto flex h-16 w-full max-w-public items-center justify-between px-6">
         <Logo />
         <div className="flex items-center gap-3">
-          <Link href="/login" className="text-[12px] text-fg-muted hover:text-fg">
-            Sign in
+          <Link
+            href={signedIn ? '/discover' : '/login'}
+            className="text-[12px] text-fg-muted hover:text-fg"
+          >
+            {signedIn ? 'Open app' : 'Sign in'}
           </Link>
           <ThemeToggle compact />
         </div>

@@ -39,7 +39,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input, Label, Select } from '@/components/ui/input';
 import { apiFetch, errorMessage } from '@/lib/api-client';
-import { relativeTime, truncate } from '@/lib/utils';
+import { cn, relativeTime, truncate } from '@/lib/utils';
 
 type Tab = 'overview' | 'guide' | 'progress';
 
@@ -221,7 +221,14 @@ export function IssueDetail({
         </div>
       </div>
 
-      <div className="mt-7 grid gap-8 lg:grid-cols-[minmax(0,720px)_280px]">
+      <div
+        className={cn(
+          'mt-7',
+          tab === 'guide'
+            ? 'max-w-[1080px]'
+            : 'grid gap-8 lg:grid-cols-[minmax(0,820px)_300px]',
+        )}
+      >
         <div className="min-w-0">
           <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
             <TabsList>
@@ -464,7 +471,8 @@ export function IssueDetail({
           </Tabs>
         </div>
 
-        <aside className="hidden lg:block">
+        {tab === 'guide' ? null : (
+          <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-3 rounded-md border border-border bg-canvas-subtle p-4">
             <div className="flex items-center gap-2 font-mono text-[10px] text-fg-subtle">
               <Avatar name={issue.repoFullName} size={24} /> {issue.repoFullName}
@@ -517,6 +525,7 @@ export function IssueDetail({
             <p className="text-center text-[10px] text-fg-subtle">You can change your mind later.</p>
           </div>
         </aside>
+        )}
       </div>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>

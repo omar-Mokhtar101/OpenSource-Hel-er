@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useSupabase } from '@/components/supabase-provider';
 import { errorMessage } from '@/lib/api-client';
+import { friendlyOAuthError, useGitHubOAuthEnabled } from '@/lib/use-oauth';
 
 export function SignInPopover({ signedIn = false }: { signedIn?: boolean }) {
   const supabase = useSupabase();
   const router = useRouter();
+  const githubEnabled = useGitHubOAuthEnabled();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,7 +68,7 @@ export function SignInPopover({ signedIn = false }: { signedIn?: boolean }) {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    if (oauthError) setError(oauthError.message);
+    if (oauthError) setError(friendlyOAuthError(oauthError.message));
   }
 
   return (
@@ -89,11 +91,25 @@ export function SignInPopover({ signedIn = false }: { signedIn?: boolean }) {
         >
           <h2 className="text-[15px] font-semibold text-fg">Sign in</h2>
           <p className="mt-1 text-[12px] text-fg-muted">Continue to OpenSource-helper.</p>
-          <Button type="button" variant="secondary" className="mt-4 w-full" onClick={github}>
-            <Github size={17} strokeWidth={1.75} />
-            Continue with GitHub
-          </Button>
-          <p className="mt-1.5 text-[11px] text-fg-subtle">Skills filled from your repositories.</p>
+          {githubEnabled === false ? (
+            <p className="mt-4 rounded-sm border border-attention/30 bg-attention/10 px-3 py-2 text-[11px] leading-5 text-attention">
+              GitHub sign-in is not enabled on this project yet. Use email below.
+            </p>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                className="mt-4 w-full"
+                onClick={github}
+                disabled={githubEnabled !== true}
+              >
+                <Github size={17} strokeWidth={1.75} />
+                {githubEnabled === null ? 'Checking GitHub…' : 'Continue with GitHub'}
+              </Button>
+              <p className="mt-1.5 text-[11px] text-fg-subtle">Skills filled from your repositories.</p>
+            </>
+          )}
           <div className="my-4 flex items-center gap-3">
             <span className="h-px flex-1 bg-border" />
             <span className="text-[10px] uppercase tracking-[0.08em] text-fg-subtle">or</span>

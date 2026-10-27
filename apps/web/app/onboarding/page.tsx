@@ -5,7 +5,7 @@ import type { ExperienceLevel } from '@osh/contracts';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { CvUpload } from '@/components/cv-upload';
 import { Logo } from '@/components/logo';
 import { useSupabase } from '@/components/supabase-provider';
@@ -29,18 +29,19 @@ export default function OnboardingPage() {
   const [languages, setLanguages] = useState<string[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
   const [description, setDescription] = useState('');
-  const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const hydrated = useRef(false);
 
-  useEffect(() => {
-    if (!profile || initialized) return;
+  // Hydrate once, during render: the old effect raced the first click and
+  // could wipe a language or skill the user had just selected.
+  if (profile && !hydrated.current) {
+    hydrated.current = true;
     setLevel(profile.experienceLevel);
     setLanguages(profile.languages);
     setSkills(profile.skills);
     setDescription(profile.description ?? '');
-    setInitialized(true);
-  }, [profile, initialized]);
+  }
 
   async function saveStepOne() {
     setError(null);
@@ -174,7 +175,7 @@ export default function OnboardingPage() {
             <div className="mt-7">
               <Label hint={`${skills.length}/12`}>Skills</Label>
               <TagInput value={skills} onChange={setSkills} max={12} suggestions={SKILL_SUGGESTIONS} />
-              <Helper>Optional but helps the guide use the right vocabulary.</Helper>
+              <Helper>Type any skill and press Enter. New skills count for matching.</Helper>
             </div>
 
             {error ? <div className="mt-4"><FieldError>{error}</FieldError></div> : null}
@@ -270,7 +271,7 @@ export default function OnboardingPage() {
             <p className="mt-5 text-[12px] text-fg-muted">You can change all of this later in Settings.</p>
             <div className="mt-6 flex items-center gap-3">
               <Link
-                href="/discover"
+                href="/discover?auto=1"
                 className="inline-flex h-11 items-center gap-2 rounded-sm bg-accent px-5 text-[15px] font-semibold text-white hover:bg-accent-hover"
               >
                 Find my first issue <ArrowRight size={15} />

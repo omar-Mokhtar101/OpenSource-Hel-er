@@ -1,5 +1,5 @@
 import { AppError } from '../../common/errors';
-import { DiscoveryService } from './discovery.service';
+import { DiscoveryService, heuristicRank } from './discovery.service';
 
 const candidates = [1, 2, 3].map((n) => ({
   id: `test/repo#${n}`,
@@ -55,5 +55,29 @@ describe('DiscoveryService AI limits', () => {
     await expect(
       service.recommend('u1', { language: 'TypeScript', label: 'good first issue' }, false),
     ).rejects.toMatchObject({ code: 'AI_TOKEN_LIMIT', status: 429 });
+  });
+});
+
+describe('heuristicRank', () => {
+  it('rewards issues whose text matches a user-written skill', () => {
+    const withSkill = { ...candidates[0]!, id: 'test/repo#10', number: 10, title: 'Add Prisma migration guide' };
+    const withoutSkill = { ...candidates[1]!, id: 'test/repo#11', number: 11, title: 'Update the logo' };
+    const ranked = heuristicRank([withoutSkill, withSkill], {
+      experienceLevel: 'BEGINNER',
+      languages: ['TypeScript'],
+      skills: ['Prisma'],
+    });
+    expect(ranked[0]?.id).toBe(withSkill.id);
+  });
+
+  it('keeps language and level scoring intact', () => {
+    const typed = { ...candidates[0]!, id: 'test/repo#12', number: 12, language: 'TypeScript' };
+    const other = { ...candidates[1]!, id: 'test/repo#13', number: 13, language: 'Python' };
+    const ranked = heuristicRank([other, typed], {
+      experienceLevel: 'BEGINNER',
+      languages: ['TypeScript'],
+      skills: [],
+    });
+    expect(ranked[0]?.id).toBe(typed.id);
   });
 });

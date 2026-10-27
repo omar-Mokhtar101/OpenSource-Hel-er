@@ -16,9 +16,21 @@ export function TagInput({
   suggestions: string[];
 }) {
   const [draft, setDraft] = useState('');
+
+  function commit() {
+    const cleaned = draft.trim().slice(0, 60);
+    if (!cleaned) return;
+    if (value.some((entry) => entry.toLowerCase() === cleaned.toLowerCase())) {
+      setDraft('');
+      return;
+    }
+    onChange([...value, cleaned].slice(0, max));
+    setDraft('');
+  }
+
   return (
     <div>
-      <div className="flex flex-wrap gap-1.5 rounded-sm border border-border bg-canvas p-2">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-sm border border-border bg-canvas p-2">
         {value.map((item) => (
           <span
             key={item}
@@ -36,21 +48,30 @@ export function TagInput({
           </span>
         ))}
         {value.length < max ? (
-          <Input
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key !== 'Enter' && event.key !== ',') return;
-              event.preventDefault();
-              const cleaned = draft.trim();
-              if (!cleaned || value.includes(cleaned)) return;
-              onChange([...value, cleaned].slice(0, max));
-              setDraft('');
-            }}
-            placeholder="Add a skill"
-            aria-label="Add a skill"
-            className="h-6 w-28 border-0 bg-transparent p-0 text-[11px] focus:border-0"
-          />
+          <span className="flex items-center gap-1">
+            <Input
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' && event.key !== ',') return;
+                event.preventDefault();
+                commit();
+              }}
+              maxLength={60}
+              placeholder="Type any skill, press Enter"
+              aria-label="Add a skill"
+              className="h-6 w-44 border-0 bg-transparent p-0 text-[11px] focus:border-0"
+            />
+            {draft.trim() ? (
+              <button
+                type="button"
+                onClick={commit}
+                className="rounded-sm px-1 text-[10px] text-accent hover:underline"
+              >
+                Add
+              </button>
+            ) : null}
+          </span>
         ) : null}
       </div>
       <div className="mt-2 flex flex-wrap gap-1">

@@ -8,7 +8,7 @@ import type {
 } from '@osh/contracts';
 import { Compass, RotateCw, Search, SlidersHorizontal } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { PipelineStages } from '@/components/pipeline-stages';
 import { RecommendationCard } from '@/components/recommendation-card';
@@ -32,6 +32,7 @@ export default function DiscoverPage() {
   const [org, setOrg] = useState('');
   const [repo, setRepo] = useState('');
   const [lastError, setLastError] = useState<unknown>(null);
+  const autoRan = useRef(false);
 
   const latest = useQuery({
     queryKey: ['recommendations', 'latest'],
@@ -89,6 +90,15 @@ export default function DiscoverPage() {
   const data = find.data ?? latest.data;
   const hasSet = Boolean(data?.recommendations.length);
   const loading = find.isPending;
+  const auto = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('auto') === '1';
+
+  useEffect(() => {
+    if (!auto || autoRan.current || latest.isLoading || find.isPending) return;
+    if (data || !profile?.complete) return;
+    autoRan.current = true;
+    find.mutate(false);
+  }, [auto, data, find, latest.isLoading, profile?.complete]);
+
   const profileIncomplete =
     lastError instanceof ApiError && lastError.code === 'PROFILE_INCOMPLETE'
       ? lastError.message
@@ -239,17 +249,26 @@ export default function DiscoverPage() {
       ) : null}
 
       {loading ? (
-        <div className="mt-6 grid gap-3 lg:grid-cols-3">
-          {[0, 1, 2].map((item) => (
-            <div key={item} className="rounded-md border border-border p-5">
-              <Skeleton className="h-6 w-6 rounded-full" />
-              <Skeleton className="mt-4 h-3 w-28" />
-              <Skeleton className="mt-3 h-4 w-full" />
-              <Skeleton className="mt-2 h-4 w-4/5" />
-              <Skeleton className="mt-5 h-16 w-full" />
-              <Skeleton className="mt-4 h-3 w-2/3" />
-            </div>
-          ))}
+        <div className="mt-6">
+          <div className="mb-4 rounded-sm border border-border bg-canvas-subtle px-4 py-3">
+            <p className="text-[13px] font-medium text-fg">Finding your three best matches…</p>
+            <p className="mt-1 text-[11px] text-fg-muted">
+              Searching GitHub, reading the issues, then ranking them against your level, languages and
+              skills. The first search can take around ten seconds.
+            </p>
+          </div>
+          <div className="grid gap-3 lg:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="rounded-md border border-border p-5">
+                <Skeleton className="h-6 w-6 rounded-full" />
+                <Skeleton className="mt-4 h-3 w-28" />
+                <Skeleton className="mt-3 h-4 w-full" />
+                <Skeleton className="mt-2 h-4 w-4/5" />
+                <Skeleton className="mt-5 h-16 w-full" />
+                <Skeleton className="mt-4 h-3 w-2/3" />
+              </div>
+            ))}
+          </div>
         </div>
       ) : null}
 

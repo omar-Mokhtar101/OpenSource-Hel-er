@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ExperienceLevel, Profile } from '@osh/contracts';
 import { Check } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { CvUpload } from '@/components/cv-upload';
 import { TagInput } from '@/components/tag-input';
@@ -23,14 +23,17 @@ export default function SettingsProfilePage() {
   const [skills, setSkills] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   const [dirty, setDirty] = useState(false);
+  const hydrated = useRef(false);
 
-  useEffect(() => {
-    if (!profile.data) return;
+  // Hydrate once, during render, so a click cannot race the effect that
+  // previously reset the form back to the saved profile.
+  if (profile.data && !hydrated.current) {
+    hydrated.current = true;
     setLevel(profile.data.experienceLevel);
     setLanguages(profile.data.languages);
     setSkills(profile.data.skills);
     setDescription(profile.data.description ?? '');
-  }, [profile.data]);
+  }
 
   const save = useMutation({
     mutationFn: () =>
@@ -134,6 +137,10 @@ export default function SettingsProfilePage() {
       <section className="mt-7">
         <Label hint={`${skills.length}/12`}>Skills</Label>
         <TagInput value={skills} onChange={(value) => update(setSkills, value)} max={12} suggestions={SKILL_SUGGESTIONS} />
+        <p className="mt-2 text-[11px] text-fg-subtle">
+          Type any skill and press Enter. New skills are saved with your profile and used when matching
+          issues and explaining the repository.
+        </p>
       </section>
 
       <section className="mt-7">
