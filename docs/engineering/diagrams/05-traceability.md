@@ -70,6 +70,13 @@ Every diagram element maps to a real artifact. Jira keys come from
 The class diagrams map one-to-one to files in
 `03-class-api.md` and `03-class-web.md`. No diagram class lacks a file.
 
+## Progress state machine
+
+The contribution lifecycle (In Progress → PR Open → Merged, plus Paused) is in
+[`06-progress-state.md`](06-progress-state.md). The board is
+`apps/web/app/(app)/progress/page.tsx`; transitions are enforced in
+`SelectionService.update`.
+
 ## ERD / Redis
 
 Every entity in `04-erd.md` exists in `schema.prisma`. Every Redis key in

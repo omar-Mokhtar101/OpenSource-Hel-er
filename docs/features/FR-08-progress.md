@@ -5,7 +5,7 @@
 
 ## 1. What it does (user view)
 
-A dashboard shows selected issues in In Progress, PR Open and Merged, with counts, elapsed time, a manual update dialog and an attached PR link. A scheduled job syncs from GitHub.
+A Trello-style board shows selected issues in In Progress, PR Open, Merged and Paused, with counts, elapsed time, drag-and-drop status changes, a manual update dialog and an attached PR link. Every move creates an in-app notification. A scheduled job syncs from GitHub.
 
 ## 2. Why it exists (FR + acceptance criteria)
 
@@ -17,16 +17,18 @@ FR-8.1–8.10. Acceptance: status changes within 5 minutes of a PR/merge; histor
 
 ## 4. How it works
 
-1. The UI reads `GET /progress`.
-2. Manual update posts a status and optional GitHub PR URL; the service rejects backward moves from Merged.
-3. Every change writes a `ProgressEvent` with source manual/sync.
+1. The UI reads `GET /progress` and renders four columns; a card is dragged to another column or updated from the dialog.
+2. Manual update posts a status and optional GitHub PR URL; the service rejects backward moves from Merged (`ALREADY_MERGED`).
+3. Every change writes a `ProgressEvent` with source manual/sync and creates an in-app notification keyed by the event.
 4. The API cron enqueues `github.sync.progress` every 5 minutes; the worker checks the attached PR or the user's linked PR, updates status and writes a deduped event.
 5. Merged enqueues gamification and a notification.
 
 ## 5. Sequence diagram
 
 Canonical sequence: [progress and sync](../engineering/diagrams/sequences/06-progress-sync.md).
-The diagram is the source of truth for this flow and maps to the files above.
+The state machine (including Paused and the Merged terminal guard) is
+[06-progress-state.md](../engineering/diagrams/06-progress-state.md).
+The diagrams are the source of truth for this flow and map to the files above.
 
 ## 6. Data
 

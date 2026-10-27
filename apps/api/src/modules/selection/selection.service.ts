@@ -13,6 +13,14 @@ import { mapGithubIssue } from '../github/github.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { QueueService, QUEUES } from '../../infra/queue.service';
 
+const STATUS_LABEL: Record<ProgressStatus, string> = {
+  IN_PROGRESS: 'In Progress',
+  PR_OPEN: 'PR Open',
+  MERGED: 'Merged',
+  PAUSED: 'Paused',
+  IGNORED: 'Ignored',
+};
+
 @Injectable()
 export class SelectionService {
   constructor(
@@ -163,7 +171,7 @@ export class SelectionService {
         },
         include: { issue: true },
       });
-      await tx.progressEvent.create({
+      const event = await tx.progressEvent.create({
         data: {
           selectionId,
           status,
@@ -172,8 +180,20 @@ export class SelectionService {
           note: input.note ?? null,
         },
       });
-      return saved;
+      return { saved, event };
     });
+    if (selection.status !== status) {
+      await this.notifications
+        .create({
+          userId,
+          type: 'SYSTEM',
+          title: `Moved to ${STATUS_LABEL[status]}`,
+          body: `"${selection.issue.title}" is now ${STATUS_LABEL[status]}.`,
+          link: `/issues/${encodeURIComponent(selection.issue.id)}?tab=progress`,
+          dedupeKey: `progress:${selectionId}:${updated.event.id}`,
+        })
+        .catch(() => null);
+    }
     if (['PR_OPEN', 'MERGED'].includes(status) && selection.status !== status) {
       await this.queue.add(
         QUEUES.gamification,
@@ -181,7 +201,7 @@ export class SelectionService {
         `badge:${userId}:${selectionId}`,
       );
     }
-    return this.toSelection(updated);
+    return this.toSelection(updated.saved);
   }
 
   async active(userId: string): Promise<Selection | null> {
