@@ -56,4 +56,10 @@ describe('response contracts', () => {
   it('leaves unknown routes untouched', () => {
     expect(parseContract('/unknown', 'GET', { any: true })).toEqual({ any: true });
   });
+
+  it('validates the deterministic issue context route', () => {
+    expect(() =>
+      parseContract('/discovery/issues/acme%2Fwidgets%232/context', 'GET', { commands: [] }),
+    ).toThrow(/did not match/);
+  });
 });

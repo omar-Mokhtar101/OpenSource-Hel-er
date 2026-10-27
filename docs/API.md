@@ -29,7 +29,7 @@ checklist in `Sprints/sprintN/01-api.md`.
 | Sprint | Resources | Contract and manual checks |
 |---|---|---|
 | 1 | Auth, account/profile, developer profile, CV, AI settings, notifications | [01-api.md](Sprints/sprint1/01-api.md) |
-| 2 | Issue search/filters, recommendations, regenerate, selection/ignore, saved lists | [01-api.md](Sprints/sprint2/01-api.md) |
+| 2 | Issue search/filters, deterministic issue context, recommendations, regenerate, selection/ignore, saved lists | [01-api.md](Sprints/sprint2/01-api.md) |
 | 3 | Repository/issue onboarding, AI guide chat, progress | [01-api.md](Sprints/sprint3/01-api.md) |
 | 4 | Progress history, notifications/preferences, badges/streaks, account history/delete, admin metrics | [01-api.md](Sprints/sprint4/01-api.md) |
 | 5 | Public profiles, contributor search, outreach/conversations, learning resources, AI usage | [01-api.md](Sprints/sprint5/01-api.md) |

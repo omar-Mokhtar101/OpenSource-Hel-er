@@ -88,6 +88,66 @@ export const IssueDetailsSchema = z.object({
 export type IssueDetails = z.infer<typeof IssueDetailsSchema>;
 
 /* -------------------------------------------------------------------------- */
+/* Deterministic issue + repository context (no AI)                            */
+/* -------------------------------------------------------------------------- */
+
+export const IssueContextSchema = z.object({
+  issue: z.object({
+    id: z.string(),
+    number: z.number().int().positive(),
+    title: z.string(),
+    body: z.string(),
+    url: z.string().url(),
+    state: z.string(),
+    labels: z.array(z.string()),
+    author: z.string().nullable(),
+    assignee: z.string().nullable(),
+    createdAt: isoDate.nullable(),
+    updatedAt: isoDate.nullable(),
+  }),
+  comments: z.array(
+    z.object({
+      author: z.string(),
+      body: z.string(),
+      createdAt: isoDate,
+      url: z.string().url().nullable(),
+    }),
+  ),
+  repo: z.object({
+    fullName: z.string(),
+    url: z.string().url(),
+    description: z.string().nullable(),
+    defaultBranch: z.string(),
+    stars: z.number().int().nonnegative(),
+    forks: z.number().int().nonnegative(),
+    openIssues: z.number().int().nonnegative(),
+    topics: z.array(z.string()),
+    language: z.string().nullable(),
+    languages: z.array(z.object({ name: z.string(), percent: z.number().nonnegative() })),
+    license: z.string().nullable(),
+    homepage: z.string().nullable(),
+    cloneUrl: z.string().url(),
+    sshUrl: z.string(),
+    pushedAt: isoDate.nullable(),
+    readmeUrl: z.string().url(),
+    contributingUrl: z.string().url().nullable(),
+  }),
+  readme: z.string(),
+  contributing: z.string(),
+  files: z.array(z.string()),
+  commands: z
+    .array(z.object({ label: z.string().min(1), command: z.string().min(1) }))
+    .min(1),
+  links: z.object({
+    repo: z.string().url(),
+    issue: z.string().url(),
+    readme: z.string().url(),
+    contributing: z.string().url().nullable(),
+  }),
+});
+export type IssueContext = z.infer<typeof IssueContextSchema>;
+
+/* -------------------------------------------------------------------------- */
 /* Issue matching (FR-5)                                                       */
 /* -------------------------------------------------------------------------- */
 

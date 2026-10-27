@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   GuideConversation,
+  IssueContext,
   IssueDetails,
   IssueOnboarding,
   ProgressHistory,
@@ -13,14 +14,19 @@ import type {
 } from '@osh/contracts';
 import {
   ArrowLeft,
+  BookOpen,
   Bookmark,
   Check,
   ChevronRight,
+  CircleDot,
+  Copy,
   ExternalLink,
   FileCode2,
+  GitFork,
   GitPullRequest,
   Link2,
   ListChecks,
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -64,6 +70,11 @@ export function IssueDetail({
   const details = useQuery({
     queryKey: ['issue', issueId],
     queryFn: () => apiFetch<IssueDetails>(`/discovery/issues/${encoded}`),
+    retry: false,
+  });
+  const context = useQuery({
+    queryKey: ['issue-context', issueId],
+    queryFn: () => apiFetch<IssueContext>(`/discovery/issues/${encoded}/context`),
     retry: false,
   });
   const selected = Boolean(details.data?.selected);
@@ -196,7 +207,15 @@ export function IssueDetail({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-accent hover:underline"
             >
-              Open on GitHub <ExternalLink size={11} />
+              Open issue on GitHub <ExternalLink size={11} />
+            </a>
+            <a
+              href={details.data.repo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-accent hover:underline"
+            >
+              Open repository <ExternalLink size={11} />
             </a>
             <span>Active {issue.activityDays}d ago</span>
           </div>
@@ -209,7 +228,12 @@ export function IssueDetail({
             onClick={() => save.mutate()}
             disabled={details.data.saved || save.isPending}
           >
-            <Bookmark size={13} /> {details.data.saved ? 'Saved' : 'Save'}
+            <Bookmark
+              size={13}
+              fill={details.data.saved ? 'currentColor' : 'none'}
+              className={details.data.saved ? 'text-fg' : undefined}
+            />{' '}
+            {details.data.saved ? 'Saved' : 'Save'}
           </Button>
           <Link
             href={`/issues/${encoded}?tab=guide`}
@@ -243,6 +267,11 @@ export function IssueDetail({
                   <h2 className="text-[16px] font-semibold text-fg">What the issue asks</h2>
                   {onboarding.data?.summary ? (
                     <Prose text={onboarding.data.summary} className="mt-2 max-w-[68ch]" />
+                  ) : context.data ? (
+                    <p className="mt-2 max-w-[68ch] text-[13px] leading-6 text-fg-muted">
+                      The original issue text is below, followed by the repository, its README and the
+                      exact commands to start. Nothing on this page needs the AI to be online.
+                    </p>
                   ) : (
                     <p className="mt-2 max-w-[68ch] whitespace-pre-wrap text-[13px] leading-6 text-fg-muted">
                       {truncate(details.data.body || 'No description on GitHub.', 900)}
@@ -254,6 +283,227 @@ export function IssueDetail({
                     </p>
                   ) : null}
                 </section>
+
+                <section>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-[16px] font-semibold text-fg">The issue on GitHub</h2>
+                    <a
+                      href={issue.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-accent hover:underline"
+                    >
+                      Open issue <ExternalLink size={11} />
+                    </a>
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-fg-subtle">
+                    {context.data?.issue.author ? <span>@{context.data.issue.author}</span> : null}
+                    {context.data?.issue.createdAt ? (
+                      <span>opened {new Date(context.data.issue.createdAt).toLocaleDateString()}</span>
+                    ) : null}
+                    <span className="font-mono">#{issue.number}</span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {(context.data?.issue.labels ?? issue.labels).map((label) => (
+                      <Pill key={label}>{label}</Pill>
+                    ))}
+                  </div>
+                  <div className="mt-3 rounded-md border border-border bg-canvas-subtle p-4">
+                    {context.isLoading ? (
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-11/12" />
+                        <Skeleton className="h-3 w-4/5" />
+                      </div>
+                    ) : (
+                      <Prose
+                        text={
+                          context.data?.issue.body ||
+                          details.data.body ||
+                          'No description was written on GitHub. Read the comments for context.'
+                        }
+                        className="max-w-[80ch]"
+                      />
+                    )}
+                  </div>
+                  {context.data && context.data.comments.length > 0 ? (
+                    <details className="mt-3 rounded-md border border-border px-4 py-3">
+                      <summary className="cursor-pointer text-[12px] text-fg-muted">
+                        {context.data.comments.length} comment
+                        {context.data.comments.length === 1 ? '' : 's'} on GitHub
+                      </summary>
+                      <ul className="mt-3 space-y-3">
+                        {context.data.comments.slice(0, 10).map((comment) => (
+                          <li key={`${comment.author}-${comment.createdAt}`} className="border-l-2 border-border pl-3">
+                            <p className="text-[10px] text-fg-subtle">
+                              @{comment.author} · {relativeTime(comment.createdAt)}
+                            </p>
+                            <Prose text={comment.body} className="mt-1 text-[12px]" />
+                            {comment.url ? (
+                              <a
+                                href={comment.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-accent hover:underline"
+                              >
+                                Open comment
+                              </a>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : null}
+                </section>
+
+                <section>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-[16px] font-semibold text-fg">About the repository</h2>
+                    <a
+                      href={details.data.repo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-accent hover:underline"
+                    >
+                      Open repository <ExternalLink size={11} />
+                    </a>
+                  </div>
+                  {context.isLoading ? (
+                    <div className="mt-3 space-y-2">
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-10/12" />
+                      <Skeleton className="h-16 w-full" />
+                    </div>
+                  ) : context.isError || !context.data ? (
+                    <div className="mt-2 rounded-sm border border-danger/30 bg-danger/10 px-3 py-2 text-[12px] text-danger">
+                      GitHub did not return the repository details. Read it directly on GitHub.
+                    </div>
+                  ) : (
+                    <div className="mt-2 space-y-3">
+                      <p className="max-w-[80ch] text-[12px] leading-6 text-fg-muted">
+                        {context.data.repo.description ?? 'No repository description.'}
+                      </p>
+                      <div className="flex flex-wrap gap-3 text-[11px] text-fg-muted">
+                        <span className="inline-flex items-center gap-1">
+                          <Star size={12} /> {context.data.repo.stars.toLocaleString()}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <GitFork size={12} /> {context.data.repo.forks.toLocaleString()}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <CircleDot size={12} /> {context.data.repo.openIssues.toLocaleString()} open
+                        </span>
+                        {context.data.repo.license ? <span>{context.data.repo.license}</span> : null}
+                        <span className="font-mono">default: {context.data.repo.defaultBranch}</span>
+                      </div>
+                      {context.data.repo.topics.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {context.data.repo.topics.map((topic) => (
+                            <Pill key={topic} tone="accent">
+                              {topic}
+                            </Pill>
+                          ))}
+                        </div>
+                      ) : null}
+                      {context.data.repo.languages.length > 0 ? (
+                        <div className="space-y-1">
+                          {context.data.repo.languages
+                            .filter((language) => language.percent > 0)
+                            .map((language) => (
+                            <div key={language.name} className="flex items-center gap-2 text-[10px] text-fg-subtle">
+                              <span className="w-24 shrink-0">{language.name}</span>
+                              <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-border-muted">
+                                <span
+                                  className="block h-full rounded-full bg-accent"
+                                  style={{ width: `${Math.max(2, language.percent)}%` }}
+                                />
+                              </span>
+                              <span className="w-10 text-right">
+                                {language.percent < 1 ? '<1%' : `${language.percent}%`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                      <div className="flex flex-wrap gap-2">
+                        <a
+                          href={context.data.links.readme}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-[11px] text-fg hover:border-border-strong"
+                        >
+                          <BookOpen size={11} /> README
+                        </a>
+                        {context.data.links.contributing ? (
+                          <a
+                            href={context.data.links.contributing}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-[11px] text-fg hover:border-border-strong"
+                          >
+                            <FileCode2 size={11} /> Contributing guide
+                          </a>
+                        ) : null}
+                      </div>
+                      {context.data.readme ? (
+                        <details className="rounded-md border border-border px-3 py-2">
+                          <summary className="cursor-pointer text-[12px] text-fg-muted">
+                            README — what the project is and how it is built
+                          </summary>
+                          <div className="mt-2 max-h-[420px] overflow-auto pr-2">
+                            <Prose text={context.data.readme} className="max-w-[80ch] text-[12px]" />
+                          </div>
+                        </details>
+                      ) : null}
+                      {context.data.contributing ? (
+                        <details className="rounded-md border border-border px-3 py-2">
+                          <summary className="cursor-pointer text-[12px] text-fg-muted">
+                            CONTRIBUTING.md — the project&apos;s rules
+                          </summary>
+                          <div className="mt-2 max-h-[320px] overflow-auto pr-2">
+                            <Prose text={context.data.contributing} className="max-w-[80ch] text-[12px]" />
+                          </div>
+                        </details>
+                      ) : null}
+                    </div>
+                  )}
+                </section>
+
+                {context.data ? (
+                  <section>
+                    <h2 className="text-[16px] font-semibold text-fg">Start from zero</h2>
+                    <p className="mt-1 text-[12px] text-fg-muted">
+                      Derived from the repository files — no AI. Run these in a terminal, then read the
+                      issue and open a pull request.
+                    </p>
+                    <ol className="mt-3 space-y-2">
+                      {context.data.commands.map((entry) => (
+                        <li
+                          key={entry.command}
+                          className="rounded-md border border-border bg-canvas-subtle px-3 py-2"
+                        >
+                          <p className="text-[10px] uppercase tracking-[0.06em] text-fg-subtle">
+                            {entry.label}
+                          </p>
+                          <div className="mt-1 flex items-center justify-between gap-3">
+                            <code className="break-all font-mono text-[11px] text-fg">{entry.command}</code>
+                            <button
+                              type="button"
+                              aria-label={`Copy: ${entry.command}`}
+                              onClick={() => {
+                                void navigator.clipboard.writeText(entry.command);
+                                toast.success('Command copied');
+                              }}
+                              className="shrink-0 rounded-sm p-1 text-fg-subtle hover:bg-canvas hover:text-fg"
+                            >
+                              <Copy size={12} />
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                ) : null}
 
                 <section>
                   <h2 className="text-[16px] font-semibold text-fg">What you&apos;ll need</h2>
@@ -302,7 +552,11 @@ export function IssueDetail({
 
                 {selected && repository.data ? (
                   <section>
-                    <h2 className="text-[16px] font-semibold text-fg">The repository</h2>
+                    <h2 className="text-[16px] font-semibold text-fg">AI onboarding notes</h2>
+                    <p className="mt-1 text-[11px] text-fg-subtle">
+                      Generated after you selected the issue. The deterministic setup above is the source
+                      of truth; treat this as a study aid.
+                    </p>
                     <p className="mt-2 max-w-[68ch] text-[12px] leading-6 text-fg-muted">
                       {repository.data.overview}
                     </p>
@@ -510,7 +764,12 @@ export function IssueDetail({
               onClick={() => save.mutate()}
               disabled={details.data.saved}
             >
-              <Bookmark size={14} /> {details.data.saved ? 'Saved' : 'Save'}
+              <Bookmark
+                size={14}
+                fill={details.data.saved ? 'currentColor' : 'none'}
+                className={details.data.saved ? 'text-fg' : undefined}
+              />{' '}
+              {details.data.saved ? 'Saved' : 'Save'}
             </Button>
             <button
               type="button"

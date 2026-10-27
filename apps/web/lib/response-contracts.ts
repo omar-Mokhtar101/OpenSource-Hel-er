@@ -13,6 +13,7 @@ import {
   DiscoveryResponseSchema,
   GuideConversationSchema,
   GuideReplySchema,
+  IssueContextSchema,
   IssueDetailsSchema,
   IssueOnboardingSchema,
   LearningResourceSchema,
@@ -102,6 +103,7 @@ export function schemaFor(path: string, method: string): ZodTypeAny | null {
   };
   if (exact[clean]) return exact[clean] ?? null;
   if (/^\/cv\/[^/]+\/retry$/.test(clean)) return CvUploadEnvelopeSchema;
+  if (/^\/discovery\/issues\/[^/]+\/context$/.test(clean)) return IssueContextSchema;
   if (/^\/discovery\/issues\/[^/]+$/.test(clean)) return IssueDetailsSchema;
   if (/^\/onboarding\/repository\/[^/]+$/.test(clean)) return RepositoryOnboardingSchema;
   if (/^\/onboarding\/issue\/[^/]+$/.test(clean)) return IssueOnboardingSchema;

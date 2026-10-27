@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type {
   IssueCandidate,
+  IssueContext,
   IssueDetails,
   Recommendation,
   RecommendationRequest,
@@ -62,6 +63,10 @@ export class DiscoveryService {
 
   async issue(userId: string, issueId: string): Promise<IssueDetails> {
     return this.github.issueDetails(userId, issueId);
+  }
+
+  async issueContext(userId: string, issueId: string): Promise<IssueContext> {
+    return this.github.issueContext(userId, issueId);
   }
 
   async recommend(

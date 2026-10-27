@@ -14,6 +14,7 @@ Global conventions (base URL, auth header, error shape, pagination) live in [`..
 | A2.2 | POST | `/discovery/recommendations` | Developer | Three ranked issues | RecommendationRequest | RecommendationResponse | 409 profile/pool, 429 AI |
 | A2.3 | POST | `/discovery/recommendations/regenerate` | Developer | Different three | RecommendationRequest | RecommendationResponse | 409 no previous set |
 | A2.4 | GET | `/discovery/issues/:id` | Developer | Issue details | encoded `owner/repo#n` | IssueDetails | 404 |
+| A2.11 | GET | `/discovery/issues/:id/context` | Developer | Deterministic issue + repository context (README, contributing, files, commands) | encoded `owner/repo#n` | IssueContext | 404, 503 GitHub |
 | A2.5 | POST | `/selection` | Developer | Confirm selection | `{issueId, confirmed:true}` | Selection | 400, 409 closed/already/active |
 | A2.6 | POST | `/discovery/ignore` | Developer | Ignore an issue | `{issueId}` | `{ok:true}` | 404, 409 selected |
 | A2.7 | GET/POST/PATCH/DELETE | `/saved/lists[/:id]` | Developer | Lists CRUD | `{name}` | SavedList / detail | 403, 404, 409 |
@@ -31,6 +32,7 @@ For each endpoint, test the happy path plus the security and validation cases be
 | A2.2 | Get three recommendations | Happy path; missing session → 401; wrong role/owner → 403/404; invalid input → 4xx | Response follows contract; side effect correct | ☐ |
 | A2.3 | Regenerate recommendations | Happy path; missing session → 401; wrong role/owner → 403/404; invalid input → 4xx | Response follows contract; side effect correct | ☐ |
 | A2.4 | Get issue details | Happy path; missing session → 401; wrong role/owner → 403/404; invalid input → 4xx | Response follows contract; side effect correct | ☐ |
+| A2.11 | Get deterministic issue context | Happy path; missing session → 401; invalid id → 404; GitHub down → 503 | README, labels, comments and commands match the repository; no AI call | ☐ |
 | A2.5 | Select and confirm an issue | Happy path; missing session → 401; wrong role/owner → 403/404; invalid input → 4xx | Response follows contract; side effect correct | ☐ |
 | A2.6 | Ignore an issue | Happy path; missing session → 401; wrong role/owner → 403/404; invalid input → 4xx | Response follows contract; side effect correct | ☐ |
 | A2.7 | List, create, rename and delete saved lists | Happy path; missing session → 401; wrong role/owner → 403/404; invalid input → 4xx | Response follows contract; side effect correct | ☐ |

@@ -6,6 +6,7 @@ import type {
   DiscoveryFilters,
   ExperienceLevel,
   IssueCandidate,
+  IssueContext,
   IssueDetails,
 } from '@osh/contracts';
 import type { GithubIssue } from '@prisma/client';
@@ -14,6 +15,7 @@ import { RedisService } from '../../infra/redis.service';
 import { EncryptionService } from '../../infra/encryption.service';
 import { AppError } from '../../common/errors';
 import { getEnv } from '../../config/env';
+import { buildStartCommands } from '../discovery/start-commands';
 
 export interface GithubConnection {
   connected: boolean;
@@ -34,6 +36,14 @@ export interface RepoContext {
   topics: string[];
   commitSha: string | null;
   updatedAt: string;
+  forks: number;
+  openIssues: number;
+  license: string | null;
+  homepage: string | null;
+  cloneUrl: string;
+  sshUrl: string;
+  htmlUrl: string;
+  languageBytes: Record<string, number>;
 }
 
 export interface PullStatus {
@@ -429,7 +439,7 @@ export class GithubService {
   /* ---------------------------------------------------------------------- */
 
   async repoContext(userId: string, repoFullName: string): Promise<RepoContext> {
-    const key = `gh:repo:${repoFullName}`;
+    const key = `gh:repo:v2:${repoFullName}`;
     const cached = await this.redis.getJson<RepoContext>(key);
     if (cached) return cached;
     const [owner, repo] = repoFullName.split('/');
@@ -437,7 +447,7 @@ export class GithubService {
     try {
       const octokit = await this.client(userId);
       const { data: repoData } = await octokit.rest.repos.get({ owner, repo });
-      const [readme, contributing, tree, languages, topics] = await Promise.all([
+      const [readme, contributing, tree, languageBytes, topics] = await Promise.all([
         octokit.rest.repos
           .getReadme({ owner, repo })
           .then((response) => decodeBase64(response.data.content))
@@ -462,8 +472,8 @@ export class GithubService {
           .catch(() => [] as string[]),
         octokit.rest.repos
           .listLanguages({ owner, repo })
-          .then((response) => Object.keys(response.data))
-          .catch(() => [] as string[]),
+          .then((response) => response.data)
+          .catch(() => ({}) as Record<string, number>),
         octokit.rest.repos
           .getAllTopics({ owner, repo })
           .then((response) => response.data.names.filter((name): name is string => Boolean(name)))
@@ -479,10 +489,18 @@ export class GithubService {
         readme: readme.slice(0, 14_000),
         contributing: contributing.slice(0, 8_000),
         tree,
-        languages,
+        languages: Object.keys(languageBytes),
         topics,
         commitSha: branch?.data.commit.sha ?? null,
         updatedAt: (repoData.pushed_at ?? new Date().toISOString()).toString(),
+        forks: repoData.forks_count,
+        openIssues: repoData.open_issues_count,
+        license: repoData.license?.spdx_id ?? null,
+        homepage: repoData.homepage ?? null,
+        cloneUrl: repoData.clone_url,
+        sshUrl: repoData.ssh_url,
+        htmlUrl: repoData.html_url,
+        languageBytes,
       };
       await this.redis.setJson(key, context, 900);
       return context;
@@ -490,6 +508,137 @@ export class GithubService {
       this.logger.warn(`repo context failed: ${error instanceof Error ? error.message : 'unknown'}`);
       throw new AppError('REPOSITORY_UNAVAILABLE', 'The repository could not be read from GitHub', 503);
     }
+  }
+
+  async issueContext(userId: string, issueId: string): Promise<IssueContext> {
+    const cacheKey = `gh:issue-context:${issueId}`;
+    const cached = await this.redis.getJson<IssueContext>(cacheKey);
+    if (cached) return cached;
+
+    const { owner, repo, number } = parseIssueId(issueId);
+    let issue = await this.prisma.githubIssue.findUnique({ where: { id: issueId } });
+    if (!issue) {
+      await this.issueDetails(userId, issueId);
+      issue = await this.prisma.githubIssue.findUnique({ where: { id: issueId } });
+      if (!issue) throw AppError.notFound('That issue is not available on GitHub');
+    }
+
+    const [context, ghIssue, comments] = await Promise.all([
+      this.repoContext(userId, `${owner}/${repo}`),
+      this.client(userId).then((octokit) =>
+        octokit.rest.issues.get({ owner, repo, issue_number: number }),
+      ),
+      this.fetchCommentsDetailed(userId, owner, repo, number).catch(() => []),
+    ]);
+
+    const scripts = context.tree.includes('package.json')
+      ? await this.readPackageScripts(userId, owner, repo).catch(() => ({}) as Record<string, string>)
+      : {};
+    const commands = buildStartCommands({
+      repoFullName: context.fullName,
+      cloneUrl: context.cloneUrl,
+      defaultBranch: context.defaultBranch,
+      issueNumber: number,
+      files: context.tree,
+      scripts,
+    });
+    const totalBytes = Object.values(context.languageBytes).reduce((sum, bytes) => sum + bytes, 0);
+    const languages = Object.entries(context.languageBytes)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, bytes]) => ({
+        name,
+        percent: totalBytes > 0 ? Math.round((bytes / totalBytes) * 1000) / 10 : 0,
+      }));
+    const readmeUrl = `${context.htmlUrl}#readme`;
+    const contributingUrl = context.contributing
+      ? `${context.htmlUrl}/blob/${context.defaultBranch}/CONTRIBUTING.md`
+      : null;
+
+    const result: IssueContext = {
+      issue: {
+        id: issue.id,
+        number,
+        title: ghIssue.data.title,
+        body: (ghIssue.data.body ?? issue.body ?? '').slice(0, 12_000),
+        url: ghIssue.data.html_url,
+        state: ghIssue.data.state,
+        labels: ghIssue.data.labels.map((label) =>
+          typeof label === 'string' ? label : (label.name ?? ''),
+        ),
+        author: ghIssue.data.user?.login ?? null,
+        assignee: ghIssue.data.assignee?.login ?? null,
+        createdAt: ghIssue.data.created_at ?? null,
+        updatedAt: ghIssue.data.updated_at ?? null,
+      },
+      comments,
+      repo: {
+        fullName: context.fullName,
+        url: context.htmlUrl,
+        description: context.description || null,
+        defaultBranch: context.defaultBranch,
+        stars: context.stars,
+        forks: context.forks,
+        openIssues: context.openIssues,
+        topics: context.topics,
+        language: context.language || null,
+        languages,
+        license: context.license,
+        homepage: context.homepage,
+        cloneUrl: context.cloneUrl,
+        sshUrl: context.sshUrl,
+        pushedAt: context.updatedAt,
+        readmeUrl,
+        contributingUrl,
+      },
+      readme: context.readme.slice(0, 8_000),
+      contributing: context.contributing.slice(0, 6_000),
+      files: context.tree,
+      commands,
+      links: {
+        repo: context.htmlUrl,
+        issue: ghIssue.data.html_url,
+        readme: readmeUrl,
+        contributing: contributingUrl,
+      },
+    };
+    await this.redis.setJson(cacheKey, result, 300);
+    return result;
+  }
+
+  private async readPackageScripts(
+    userId: string,
+    owner: string,
+    repo: string,
+  ): Promise<Record<string, string>> {
+    const octokit = await this.client(userId);
+    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: 'package.json' });
+    if (Array.isArray(data) || !('content' in data)) return {};
+    const parsed = JSON.parse(decodeBase64(data.content)) as {
+      scripts?: Record<string, string>;
+    };
+    return parsed.scripts ?? {};
+  }
+
+  private async fetchCommentsDetailed(
+    userId: string,
+    owner: string,
+    repo: string,
+    number: number,
+  ): Promise<Array<{ author: string; body: string; createdAt: string; url: string | null }>> {
+    const octokit = await this.client(userId);
+    const { data } = await octokit.rest.issues.listComments({
+      owner,
+      repo,
+      issue_number: number,
+      per_page: 30,
+    });
+    return data.map((comment) => ({
+      author: comment.user?.login ?? 'unknown',
+      body: (comment.body ?? '').slice(0, 3000),
+      createdAt: comment.created_at,
+      url: comment.html_url ?? null,
+    }));
   }
 
   async issueSnapshot(

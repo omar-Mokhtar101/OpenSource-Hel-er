@@ -25,6 +25,12 @@ export class DiscoveryController {
     return this.discovery.search(user.id, filters, filters.page, filters.perPage);
   }
 
+  @Get('issues/:id/context')
+  @Roles('DEVELOPER')
+  context(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+    return this.discovery.issueContext(user.id, decodeURIComponent(id));
+  }
+
   @Get('issues/:id')
   @Roles('DEVELOPER')
   details(@CurrentUser() user: RequestUser, @Param('id') id: string) {

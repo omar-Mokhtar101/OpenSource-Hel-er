@@ -15,6 +15,11 @@ FR-10.1–10.9. Acceptance: summary, requirements, related code and resources; o
 
 `apps/api/src/modules/onboarding/onboarding.service.ts`, `apps/api/src/modules/ai/prompts.ts`, `components/issue-detail.tsx`, `components/prose.tsx`
 
+The deterministic half of the page is `GET /discovery/issues/:id/context`
+(`modules/discovery/start-commands.ts`, `modules/github/github.service.ts`):
+full issue text, comments, README, CONTRIBUTING, file tree, clone/branch/test
+commands and repository links, with no AI call.
+
 ## 4. How it works
 
 1. The call verifies the issue is selected by the caller.
