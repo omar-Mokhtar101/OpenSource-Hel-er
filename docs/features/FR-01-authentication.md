@@ -22,6 +22,7 @@ FR-1.1–1.11. Acceptance: valid credentials create a session; duplicate email a
 3. The BFF proxy reads the session and attaches `Authorization: Bearer <access token>`.
 4. Nest verifies the JWT against Supabase JWKS; `users.role` is loaded from Postgres.
 5. The GitHub callback exchanges the code, reads `provider_token` once and posts it to `/github/connect`; the API encrypts it with AES-256-GCM.
+6. Every browser-initiated redirect (OAuth, reset, new-account confirm) is built by `lib/public-url.ts`: the browser origin with loopback aliases (`0.0.0.0`, `127.0.0.1`) folded to `localhost`, because Supabase matches `redirectTo` against an exact allow-list and Firefox refuses to open `0.0.0.0` at all.
 
 ## 5. Sequence diagram
 

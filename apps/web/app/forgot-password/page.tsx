@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Label } from '@/components/ui/input';
 import { useSupabase } from '@/components/supabase-provider';
 import { errorMessage } from '@/lib/api-client';
+import { oauthCallbackUrl } from '@/lib/public-url';
 
 export default function ForgotPasswordPage() {
   const supabase = useSupabase();
@@ -20,7 +21,7 @@ export default function ForgotPasswordPage() {
     setError(null);
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/reset-password')}`,
+        redirectTo: oauthCallbackUrl('/reset-password'),
       });
       if (resetError) throw resetError;
       setSent(true);

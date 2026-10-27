@@ -13,6 +13,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { FieldError, Helper, Input, Label, Textarea } from '@/components/ui/input';
 import { apiFetch, errorMessage } from '@/lib/api-client';
 import { useMe } from '@/lib/hooks';
+import { oauthCallbackUrl } from '@/lib/public-url';
 
 export default function SettingsAccountPage() {
   const router = useRouter();
@@ -92,7 +93,7 @@ export default function SettingsAccountPage() {
       provider: 'github',
       options: {
         scopes: 'read:user user:email public_repo',
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/settings/account')}`,
+        redirectTo: oauthCallbackUrl('/settings/account'),
       },
     });
     if (linkError) toast.error(linkError.message);

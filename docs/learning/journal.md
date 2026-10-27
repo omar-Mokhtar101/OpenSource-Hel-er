@@ -92,3 +92,13 @@ One line per slice: what it does, why this way, what would break it.
   what breaks it: removing that line (the build dies at "Deploying outputs") or
   deleting the middleware (server components cannot write cookies, so sessions
   stop refreshing and users are signed out when the access token expires).
+- **OAuth redirects use a normalized public origin:** every `redirectTo`
+  (GitHub sign-in/link, password reset) comes from
+  `apps/web/lib/public-url.ts`, which folds `0.0.0.0` / `127.0.0.1` to
+  `localhost`, and the callback builds its redirects from
+  `x-forwarded-host` instead of the function's internal URL; why: Supabase
+  matches the redirect against an exact allow-list and falls back to its Site
+  URL when it does not match, and Firefox refuses to open `0.0.0.0`; what
+  breaks it: browsing the app at `0.0.0.0:3000`, or leaving the Supabase Site
+  URL at localhost once the app is deployed (live users get sent to their own
+  machine).

@@ -9,6 +9,7 @@ import { FieldError, Helper, Input, Label } from '@/components/ui/input';
 import { useSupabase } from '@/components/supabase-provider';
 import { errorMessage } from '@/lib/api-client';
 import { friendlyOAuthError } from '@/lib/oauth';
+import { oauthCallbackUrl } from '@/lib/public-url';
 import { useGitHubOAuthEnabled } from '@/lib/use-oauth';
 
 type Mode = 'login' | 'signup';
@@ -61,7 +62,7 @@ export function AuthForm({ mode, next = '/discover' }: { mode: Mode; next?: stri
       provider: 'github',
       options: {
         scopes: 'read:user user:email public_repo',
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        redirectTo: oauthCallbackUrl(next),
       },
     });
     if (oauthError) setError(friendlyOAuthError(oauthError.message));

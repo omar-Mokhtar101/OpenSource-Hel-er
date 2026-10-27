@@ -107,6 +107,32 @@ Preview if you use preview deployments):
 
 `PORT` is provided by Vercel. `NODE_ENV=production` is set by the platform.
 
+## GitHub sign-in
+
+Three places have to agree, or the browser is bounced to the wrong host:
+
+| Place | Value |
+|---|---|
+| GitHub OAuth App → **Authorization callback URL** | `https://<ref>.supabase.co/auth/v1/callback` (Supabase, never the app) |
+| Supabase → Authentication → **URL Configuration → Site URL** | the production app origin, e.g. `https://<project>.vercel.app` |
+| Supabase → **Redirect URLs** | `https://<project>.vercel.app/**` plus `http://localhost:3000/**` for local work (Plus preview URLs such as `https://*-<team>.vercel.app/**` if previews must sign in) |
+
+The app passes `redirectTo=<current origin>/auth/callback?next=...`. Supabase
+accepts it only when it matches the allow-list; **otherwise it silently falls
+back to the Site URL** — the classic symptom is finishing GitHub sign-in and
+landing on `localhost:3000` (or `0.0.0.0:3000`) from the deployed site.
+
+Two more things that break the round trip:
+
+- **Deployment Protection.** With Vercel Authentication on, the deployment URL
+  redirects to `vercel.com/sso-api` before the app runs, so GitHub's callback
+  cannot reach it. Turn it off for the production deployment you are demoing
+  (Settings → Deployment Protection).
+- **Loopback aliases.** Never browse the local app at `http://0.0.0.0:3000`.
+  Firefox refuses to connect to `0.0.0.0`, and `127.0.0.1`/`0.0.0.0` are
+  separate entries in the Supabase allow-list. `apps/web/lib/public-url.ts`
+  folds both to `http://localhost:<port>` for every OAuth and reset redirect.
+
 ## First deployment
 
 1. **Redis.** Create an Upstash Redis database (free tier) in the same region as
@@ -128,11 +154,14 @@ Preview if you use preview deployments):
    **Project → Settings → Functions → Region**, and keep the daemon's
    `instances` region in `vercel.json` aligned.
 6. **Supabase redirect URLs.** Authentication → URL Configuration:
-   - Site URL: `https://<project>.vercel.app`
-   - Redirect URLs: `https://<project>.vercel.app/auth/callback`
-   - Add `https://<project>.vercel.app/**` only if you rely on `?next=` paths.
+   - Site URL: `https://<project>.vercel.app` — this is the fallback when an
+     unmatched redirect is requested, so a stale `localhost` here sends live
+     users to their own machine.
+   - Redirect URLs: `https://<project>.vercel.app/**` (covers `/auth/callback`
+     with its `?next=` parameter) and `http://localhost:3000/**`.
    The GitHub OAuth app's callback stays
-   `https://<ref>.supabase.co/auth/v1/callback`.
+   `https://<ref>.supabase.co/auth/v1/callback`. See
+   [GitHub sign-in](#github-sign-in).
 7. **Deploy.** The first build compiles `apps/web`, then `apps/api`, then the
    worker image.
 
@@ -192,6 +221,7 @@ docker run --rm --env-file .env osh-worker
 | Symptom | Likely cause |
 |---|---|
 | Build fails at "Deploying outputs" with `Edge Runtime is not supported in services. Service "web" produced Edge Function output "middleware"` | Next.js defaults middleware to the Edge runtime. `apps/web/middleware.ts` must keep `runtime: 'nodejs'` in its `config`; removing it makes the whole service undeployable |
+| After **Continue with GitHub** the browser lands on `localhost:3000` or `0.0.0.0:3000` and cannot connect | Supabase fell back to its **Site URL** because the requested `redirectTo` is not in the redirect allow-list. See [GitHub sign-in](#github-sign-in). `0.0.0.0` additionally means the app was opened at a loopback alias; always browse `http://localhost:3000` |
 | `/api/health` returns 503 `API_UNAVAILABLE` | `api` service failed to build/start, or the binding is missing on `web` |
 | Every API call is 401 | `API_URL` was set manually (bypassing the binding) or the route is hitting the API directly without the BFF |
 | `Prisma Client could not locate the Query Engine for runtime "rhel-openssl-3.0.x"` | `prisma generate` did not run in the build, or `binaryTargets` lost `rhel-openssl-3.0.x` |

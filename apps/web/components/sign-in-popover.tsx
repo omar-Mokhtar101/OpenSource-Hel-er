@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { useSupabase } from '@/components/supabase-provider';
 import { errorMessage } from '@/lib/api-client';
 import { friendlyOAuthError } from '@/lib/oauth';
+import { oauthCallbackUrl } from '@/lib/public-url';
 import { useGitHubOAuthEnabled } from '@/lib/use-oauth';
 
 export function SignInPopover({ signedIn = false }: { signedIn?: boolean }) {
@@ -66,7 +67,7 @@ export function SignInPopover({ signedIn = false }: { signedIn?: boolean }) {
       provider: 'github',
       options: {
         scopes: 'read:user user:email public_repo',
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: oauthCallbackUrl(),
       },
     });
     if (oauthError) setError(friendlyOAuthError(oauthError.message));
