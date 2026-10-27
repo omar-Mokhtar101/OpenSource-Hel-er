@@ -85,3 +85,10 @@ One line per slice: what it does, why this way, what would break it.
   a bigger file would fail at the platform with an opaque 413 before our own
   validation; what breaks it: raising `CV_MAX_BYTES` above 4 MB without moving
   uploads to direct-to-Supabase signed URLs.
+- **Middleware runs on the Node runtime:** `apps/web/middleware.ts` sets
+  `runtime: 'nodejs'`; why: Next.js 15 defaults middleware to Edge, and Vercel
+  Services refuse a deployment that contains any Edge Function output, while
+  middleware is the only place the Supabase session cookie can be refreshed;
+  what breaks it: removing that line (the build dies at "Deploying outputs") or
+  deleting the middleware (server components cannot write cookies, so sessions
+  stop refreshing and users are signed out when the access token expires).

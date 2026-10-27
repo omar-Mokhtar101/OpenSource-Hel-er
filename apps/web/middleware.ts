@@ -71,4 +71,8 @@ function redirectWithCookies(target: URL, response: NextResponse): NextResponse 
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|api|.*\\..*).*)'],
+  // Next.js 15 defaults middleware to the Edge runtime. Vercel Services reject
+  // any Edge Function output ("Service X produced Edge Function output
+  // middleware"), so this must run on Node. Stable since Next 15.5.
+  runtime: 'nodejs',
 };

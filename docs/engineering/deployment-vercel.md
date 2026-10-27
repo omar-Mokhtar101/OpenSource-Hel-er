@@ -159,6 +159,7 @@ daemon and Redis are wired.
 | 300 s function duration (Hobby) | Anything slower is a queue job, which is already the architecture rule. |
 | No persistent process in functions | BullMQ consumers moved to the daemon; `@nestjs/schedule` in the API is best-effort on serverless. |
 | 250 MB function bundle | NestJS + Prisma + Octokit fit; check the build log if it grows. |
+| Services reject Edge Function output | `middleware.ts` pins `runtime: 'nodejs'`; the default Edge runtime fails the deployment after the build finishes. |
 
 ### Scheduled work
 
@@ -190,6 +191,7 @@ docker run --rm --env-file .env osh-worker
 
 | Symptom | Likely cause |
 |---|---|
+| Build fails at "Deploying outputs" with `Edge Runtime is not supported in services. Service "web" produced Edge Function output "middleware"` | Next.js defaults middleware to the Edge runtime. `apps/web/middleware.ts` must keep `runtime: 'nodejs'` in its `config`; removing it makes the whole service undeployable |
 | `/api/health` returns 503 `API_UNAVAILABLE` | `api` service failed to build/start, or the binding is missing on `web` |
 | Every API call is 401 | `API_URL` was set manually (bypassing the binding) or the route is hitting the API directly without the BFF |
 | `Prisma Client could not locate the Query Engine for runtime "rhel-openssl-3.0.x"` | `prisma generate` did not run in the build, or `binaryTargets` lost `rhel-openssl-3.0.x` |
