@@ -73,7 +73,7 @@ export default async function HomePage() {
       </section>
 
       <footer className="mx-auto flex w-full max-w-public flex-col items-center justify-between gap-4 border-t border-border px-6 py-8 text-[13px] text-fg-subtle sm:flex-row">
-        <span>© 2026 OpenSource-helper</span>
+        <span>© 2026 OpenPath</span>
         <div className="flex items-center gap-5">
           <a href="https://github.com" rel="noopener noreferrer" className="hover:text-fg">
             GitHub

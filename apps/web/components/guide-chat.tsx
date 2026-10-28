@@ -3,6 +3,7 @@
 import type { ChatMessage, GuideConversation, GuideReply } from '@osh/contracts';
 import { AlertTriangle, Send, Shield } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Prose } from '@/components/prose';
 import { Button } from '@/components/ui/button';
 import { Meter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/input';
@@ -128,9 +129,7 @@ export function GuideChat({
                   <Shield size={15} className="text-attention" />
                   I can&apos;t write the fix for you — but I can get you there.
                 </p>
-                <div className="mt-3 whitespace-pre-wrap text-[13px] leading-6 text-fg-muted">
-                  {stripHeading(message.content)}
-                </div>
+                <Prose text={stripHeading(message.content)} className="mt-3" />
               </div>
             ) : (
               <div key={message.id}>
@@ -140,8 +139,8 @@ export function GuideChat({
                   </span>
                   Guide
                 </p>
-                <div className="max-w-[62ch] whitespace-pre-wrap text-[13px] leading-6 text-fg">
-                  {message.content}
+                <div className="max-w-[68ch]">
+                  <Prose text={message.content} className="text-fg" />
                   {message.guardrailOutcome === 'STRIPPED' ? (
                     <p className="mt-2 text-[11px] text-fg-subtle">
                       I removed a code block from that answer. Ask me for the next step instead.

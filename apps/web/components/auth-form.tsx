@@ -76,7 +76,7 @@ export function AuthForm({ mode, next = '/discover' }: { mode: Mode; next?: stri
         </h1>
         <p className="mt-2 text-[13px] leading-6 text-fg-muted">
           {mode === 'login'
-            ? 'Continue to OpenSource-helper.'
+            ? 'Continue to OpenPath.'
             : 'Two minutes to set up. No card, no trial.'}
         </p>
       </div>

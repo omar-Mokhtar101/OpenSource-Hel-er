@@ -324,5 +324,5 @@ function titleFor(pathname: string): string {
   if (pathname.startsWith('/settings/account')) return 'Account';
   if (pathname.startsWith('/settings/notifications')) return 'Notifications';
   if (pathname.startsWith('/settings/appearance')) return 'Appearance';
-  return 'OpenSource-helper';
+  return 'OpenPath';
 }

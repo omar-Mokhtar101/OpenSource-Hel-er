@@ -18,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { handle } = await params;
   return {
-    title: `@${handle} · OpenSource-helper`,
+    title: `@${handle} · OpenPath`,
     description: 'An opt-in public contribution profile.',
   };
 }

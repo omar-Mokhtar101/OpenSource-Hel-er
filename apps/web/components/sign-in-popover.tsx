@@ -92,7 +92,7 @@ export function SignInPopover({ signedIn = false }: { signedIn?: boolean }) {
           className="z-50 w-[360px] rounded-md border border-border bg-canvas-subtle p-5 shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
         >
           <h2 className="text-[15px] font-semibold text-fg">Sign in</h2>
-          <p className="mt-1 text-[12px] text-fg-muted">Continue to OpenSource-helper.</p>
+          <p className="mt-1 text-[12px] text-fg-muted">Continue to OpenPath.</p>
           {githubEnabled === false ? (
             <p className="mt-4 rounded-sm border border-attention/30 bg-attention/10 px-3 py-2 text-[11px] leading-5 text-attention">
               GitHub sign-in is not enabled on this project yet. Use email below.

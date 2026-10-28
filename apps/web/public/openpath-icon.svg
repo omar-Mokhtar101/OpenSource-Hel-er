@@ -1,0 +1,7 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OpenPath">
+  <rect width="512" height="512" rx="112" fill="#0D1117"/>
+  <!-- Open ring: a 210 degree arc with a 150 degree gap at the top right. -->
+  <path d="M362.3 330.7A149.3 149.3 0 1 0 181.3 126.7" stroke="#2F81F7" stroke-width="42" stroke-linecap="round"/>
+  <!-- Arrow through the gap. -->
+  <path d="M243 268.8 384 128M306.7 128H384v77.3" stroke="#F0F6FC" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -61,7 +61,7 @@ oversized tight headline, two controls, product window floating below. We take t
 
 | Item | Decision |
 |---|---|
-| Product name | **OpenSource-helper** (always capital O, capital S, hyphen) |
+| Product name | **OpenPath** (capital O and P, one word) |
 | Short name in UI chrome | **OSH** (only where space is under 64px) |
 | Logo | A 20×20 mark: two chevrons `>_` merged into a single bracket, drawn as 2px strokes. Wordmark in Geist Medium, `-0.02em`. |
 | Logo colours | Mark uses `--accent`; wordmark uses `--fg` |
@@ -71,9 +71,9 @@ oversized tight headline, two controls, product window floating below. We take t
 
 ### Name in sentences
 
-- Home: "OpenSource-helper" once in the footer only — the hero does not repeat the brand.
-- Auth: "Continue to OpenSource-helper".
-- Emails: "OpenSource-helper · no-reply@…".
+- Home: "OpenPath" once in the footer only — the hero does not repeat the brand.
+- Auth: "Continue to OpenPath".
+- Emails: "OpenPath · no-reply@…".
 
 ---
 
@@ -366,7 +366,7 @@ No nested menus deeper than 2 levels.
 | 5 | CTA | One button: **Get started** (accent, 44px, `radius-sm`, 16px/600). Under it, 12px `--fg-subtle`: `Free · GitHub or Google · 2 minutes to set up`. |
 | 6 | Product window | The animation described in 12.2. Width 1120, 16:9-ish (1120×640), `radius-lg`. |
 | 7 | Optional strip | Three items, one line each: `01 Matched to you` / `02 Explained, not solved` / `03 Tracked to merged`. **Cut this if the page feels long** — it is the only section allowed between hero and footer. |
-| 8 | Footer | One row, 13px: `© 2026 OpenSource-helper` · GitHub · Privacy · Terms · theme toggle. No sitemap, no newsletter. |
+| 8 | Footer | One row, 13px: `© 2026 OpenPath` · GitHub · Privacy · Terms · theme toggle. No sitemap, no newsletter. |
 
 Vertical rhythm: 64px top bar → 72px to pill → 24px to H1 → 24px to subline → 32px to CTA →
 80px to window → 96px to footer.

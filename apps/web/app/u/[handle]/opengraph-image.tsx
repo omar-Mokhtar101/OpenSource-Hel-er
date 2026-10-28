@@ -30,7 +30,7 @@ export default async function Image({ params }: { params: Promise<{ handle: stri
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#2F81F7', fontSize: 28 }}>
           <span>&gt;_</span>
-          <span style={{ color: '#8B949E', fontSize: 22 }}>OpenSource-helper</span>
+          <span style={{ color: '#8B949E', fontSize: 22 }}>OpenPath</span>
         </div>
         <div>
           <div style={{ fontSize: 64, fontWeight: 600, letterSpacing: '-0.03em' }}>
@@ -46,7 +46,7 @@ export default async function Image({ params }: { params: Promise<{ handle: stri
           ) : null}
         </div>
         <div style={{ fontSize: 20, color: '#6E7681' }}>
-          Opt-in contribution profile · opensource-helper
+          Opt-in contribution profile · openpath
         </div>
       </div>
     ),

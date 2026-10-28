@@ -16,6 +16,7 @@ import { EncryptionService } from '../../infra/encryption.service';
 import { AppError } from '../../common/errors';
 import { getEnv } from '../../config/env';
 import { buildStartCommands } from '../discovery/start-commands';
+import { prerequisitesFor } from './prerequisites';
 
 export interface GithubConnection {
   connected: boolean;
@@ -413,11 +414,10 @@ export class GithubService {
         technologies,
         knowledge: issue.labels.slice(0, 6),
         level: issue.level,
-        prerequisites: [
-          'A GitHub account and a fork of the repository',
-          'Node.js or the runtime named in the README',
-          'The test suite runs locally before you open a pull request',
-        ],
+        prerequisites: prerequisitesFor(
+          { repoFullName: issue.repoFullName, language: issue.language, labels: issue.labels },
+          defaultBranch,
+        ),
       },
       repo: {
         fullName: issue.repoFullName,

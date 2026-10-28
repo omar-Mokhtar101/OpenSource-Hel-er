@@ -32,7 +32,7 @@ export function HeroWindow() {
           <span className="h-2 w-2 rounded-full bg-attention/70" />
           <span className="h-2 w-2 rounded-full bg-success/70" />
           <div className="mx-auto rounded-full border border-border-muted px-4 py-1 font-mono text-[10px] text-fg-subtle">
-            opensource-helper.app/discover
+            openpath.app/discover
           </div>
         </div>
         <div className="relative h-[380px] overflow-hidden p-5 sm:h-[520px] sm:p-8">

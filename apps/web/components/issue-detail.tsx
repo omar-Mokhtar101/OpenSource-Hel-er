@@ -273,9 +273,10 @@ export function IssueDetail({
                       exact commands to start. Nothing on this page needs the AI to be online.
                     </p>
                   ) : (
-                    <p className="mt-2 max-w-[68ch] whitespace-pre-wrap text-[13px] leading-6 text-fg-muted">
-                      {truncate(details.data.body || 'No description on GitHub.', 900)}
-                    </p>
+                    <Prose
+                      text={truncate(details.data.body || 'No description on GitHub.', 900)}
+                      className="mt-2 max-w-[68ch]"
+                    />
                   )}
                   {onboarding.data ? (
                     <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.08em] text-fg-subtle">
@@ -590,8 +591,8 @@ export function IssueDetail({
                         kind: 'repository' as const,
                       },
                       { title: 'Issue discussion', url: issue.url, kind: 'issue' as const },
-                    ]).map((resource) => (
-                      <li key={resource.url}>
+                    ]).map((resource, index) => (
+                      <li key={`${index}-${resource.url}`}>
                         <a
                           href={resource.url}
                           target="_blank"

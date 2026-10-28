@@ -1,4 +1,4 @@
-# OpenSource-helper
+# OpenPath
 
 An AI-guided platform that takes a first-time developer from choosing a GitHub
 issue to a merged pull request. Issues are matched to skills, explained step by

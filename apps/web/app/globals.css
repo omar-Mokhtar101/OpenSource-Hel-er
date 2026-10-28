@@ -201,3 +201,16 @@ select {
 .skip-link:focus {
   top: 12px;
 }
+
+/* GFM task lists: the checkbox replaces the bullet. */
+ul:has(> li > input[type='checkbox']) {
+  list-style: none;
+  padding-left: 0;
+}
+
+li:has(> input[type='checkbox']) {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}

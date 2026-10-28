@@ -102,3 +102,15 @@ One line per slice: what it does, why this way, what would break it.
   breaks it: browsing the app at `0.0.0.0:3000`, or leaving the Supabase Site
   URL at localhost once the app is deployed (live users get sent to their own
   machine).
+
+- **Issue text and AI answers render as Markdown:** `components/prose.tsx` is a
+  thin `react-markdown` + `remark-gfm` wrapper with the design-system classes;
+  why: GitHub bodies and guide answers are Markdown and were shown as raw text
+  with literal `##` and backticks, which made both look broken; what breaks it:
+  rendering raw HTML (react-markdown ignores it on purpose) or passing issue
+  text through `dangerouslySetInnerHTML`.
+- **Prerequisites come from the repository, not a constant:** `github.prerequisites.ts`
+  maps the issue's language to its runtime and names the repo and default
+  branch; why: a Python issue told contributors to install Node.js; what breaks
+  it: adding a runtime to the hardcoded list instead of the language map, or
+  losing the `language` field on discovery.
